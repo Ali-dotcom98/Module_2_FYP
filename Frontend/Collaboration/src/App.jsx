@@ -1,8 +1,17 @@
 import React from 'react'
-
+import { BrowserRouter as Router , Routes , Route } from "react-router-dom";
+import Login from "./Pages/Auth/Login"
+import UserProvider from "./ContextApi/UserContext"
 const App = () => {
   return (
-    <div className='btn-small'>App</div>
+    <UserProvider>
+      <Router>
+        <Routes>
+            <Route path="/" element={<Login/>} />
+        </Routes>
+      </Router>
+    </UserProvider>
+    
   )
 }
 
