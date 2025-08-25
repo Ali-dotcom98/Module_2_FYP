@@ -1,5 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+import AxiosInstance from "../Utility/AxiosInstance";
+import { API_PATH } from "../Utility/ApiPath";
 // import { API_PATHS } from "../../Utility/API_Path"
 // import AxiosInstance from "../../Utility/AxiosInstance";
 
@@ -14,7 +16,7 @@ const UserProvider = ({ children }) => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {   
-                const result = await AxiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
+                const result = await AxiosInstance.get(API_PATH.AUTH.PROFILE);
                 console.log("result",result.data.user);
         
                 setUser(result.data.user);
@@ -24,7 +26,7 @@ const UserProvider = ({ children }) => {
                 setLoading(false);
             }
         };
-        // fetchUserData();
+        fetchUserData();
     },[]);
 
     const updateUser = (user, token) => {
