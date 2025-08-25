@@ -39,7 +39,7 @@ routes.post("/Register", async (req, res) => {
         const isFilled = [name, email, password].every((item) => item != "");
         if (!isFilled)
             return res.send("NO empty filed is Required")
-        const userexit = await User.findOne({ email });
+        const userexit = await UserModel.findOne({ email });
         if (userexit) {
             return res.status(400).json({ Message: "Email already Registered..." })
         }
@@ -53,8 +53,15 @@ routes.post("/Register", async (req, res) => {
             password: EncryptedPass
         })
 
+        if (status == "Student") {
+            const Instructor = await UserModel.findOne({ email: "A@gmail.com" })
+            Instructor.students = [...Instructor.students, user._id];
+            Instructor.save();
+        }
+
         const Payload = { User: user };
         const token = GenerateToken(Payload)
+
 
         if (user) {
             return res.status(201).json({ Message: "User Added Successfully", user: user, token: token });
@@ -81,5 +88,9 @@ routes.get("/profile", Protect, async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 });
+
+routes.get("/Hello", (req, res) => {
+    res.json({ message: "Hello Ali Welcome in Code Ascend   " })
+})
 
 module.exports = routes
