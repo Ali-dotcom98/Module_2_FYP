@@ -6,7 +6,7 @@ const Dasboard = () => {
   return (
     <>
         <div>Recent</div>
-        <div className='grid grid-cols-5 gap-4 px-9 py-7'>
+        <div className='grid grid-cols-5 gap-4 h-screen'>
             {
             [... Array(data)].map((_, index)=>(
                 <div className='bg-purple-100 h-[45vh]'>{index}</div>
