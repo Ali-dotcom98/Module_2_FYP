@@ -5,5 +5,10 @@ export const API_PATH = {
         LOGIN: "/Auth/Login",
         REGISTER: "/REGISTER",
         PROFILE: "/Auth/profile"
+    },
+    ASSIGN: {
+        CREATE: "/Assign/Create",
+        ASSINGMENTS: "/Assign/Assingments",
+        ASSINGMENTSID: (ID) => `/Assign/Assingments/${ID}`
     }
 }

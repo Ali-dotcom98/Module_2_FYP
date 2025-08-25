@@ -7,6 +7,7 @@ import Dashboard_Instructor from "./Pages/Instructors/DashBoard/Dasboard"
 import Dashboard_Student from "./Pages/Students/DashBoard/Dasboard"
 import DefaultLayout from "./Layouts/Default/Default"
 import CreateAssingment from './Pages/Instructors/CreateAssingment';
+import EditAssingments from './Pages/Instructors/EditAssingments';
 const App = () => {
   return (
     <UserProvider>
@@ -22,7 +23,16 @@ const App = () => {
               <Route index element={<Navigate to="Dashboard" />} />
               <Route path='Dashboard' element={<Dashboard_Instructor/>} />
               <Route path='CreateAssingment' element={<CreateAssingment/>} />
+              
             </Route>
+
+            <Route path="/EditAssingments/:AssingmentId"
+              element= {<ProtectRoutes status = {["Instructor"]}>
+                <EditAssingments/>
+              </ProtectRoutes>}
+            ></Route>
+
+
             <Route path="/Student"
               element= {<ProtectRoutes status = {["Student"]}>
                 <DefaultLayout/>
