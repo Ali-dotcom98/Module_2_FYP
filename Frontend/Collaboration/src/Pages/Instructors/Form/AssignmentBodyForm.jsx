@@ -5,7 +5,7 @@ import TrueFalse from './QuestionComponents/TrueFalse';
 import MultipleChoice from './QuestionComponents/MultipleChoice ';
 import Paragraph from './QuestionComponents/Paragraph';
 
-const AssignmentBodyForm = ({questions , addQuestion , removeQuestion , updateQuestion}) => {
+const AssignmentBodyForm = ({questions , addQuestion , removeQuestion ,UpdateItemInArray, AddItemInNestedArray, UpdateItemInNestedArray}) => {
     console.log("questions",questions);
     
     const RenderTypeOfComponents = (type , item , index)=>{
@@ -16,6 +16,7 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion , updateQu
                         item={item}
                         index={index}
                         removeQuestion={removeQuestion}
+                        UpdateItemInArray={UpdateItemInArray}
                     />
                 );
             case "true_false":
@@ -23,6 +24,7 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion , updateQu
                     <TrueFalse item={item}
                         index={index}
                         removeQuestion={removeQuestion}
+                        UpdateItemInArray={UpdateItemInArray}
                     />
                     
                 )
@@ -31,6 +33,9 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion , updateQu
                     <MultipleChoice item={item}
                         index={index}
                         removeQuestion={removeQuestion}
+                        UpdateItemInArray={UpdateItemInArray}
+                        AddItemInNestedArray= {AddItemInNestedArray}
+                        UpdateItemInNestedArray={UpdateItemInNestedArray}
                     />
                     
                 )
@@ -39,6 +44,7 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion , updateQu
                     <Paragraph item={item}
                         index={index}
                         removeQuestion={removeQuestion}
+                        UpdateItemInArray={UpdateItemInArray}
                     />
                     
                 )
@@ -50,7 +56,7 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion , updateQu
     }
 
   return (
-    <div className='px-5 py-3'>
+    <div className='px-5 pt-5 min-h-[32vw]'>
         <div>AssignmentBodyForm</div>
         {
             questions.map((item , index)=>(
