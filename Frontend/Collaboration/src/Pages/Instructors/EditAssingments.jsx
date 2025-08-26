@@ -3,7 +3,7 @@ import { LuArrowLeft, LuDownload, LuSave, LuTrash2 } from 'react-icons/lu'
 import TitleInput from '../../Components/Inputs/TitleInput'
 import StepProgress from '../../Components/StepProgress'
 import Modal from '../../Layouts/Modal'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AxiosInstance from '../../Utility/AxiosInstance'
 import { API_PATH } from '../../Utility/ApiPath'
 import AssignmentBasicInfoForm from './Form/AssignmentBasicInfoForm'
@@ -140,6 +140,9 @@ const RenderForm = () => {
   }
 };
 
+    const gotoHome = ()=>{
+        navigator("/Instructor/CreateAssingment")
+    }
     const UpdateSection = (section , subsection, key , value)=>
     {
         if(!section)
@@ -278,6 +281,11 @@ const RenderForm = () => {
     useEffect(()=>{
         FetchAssingment();
     },[])
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+    }, []);
+
   return (
       <div className="container mx-auto font-urbanist">
         <div className="flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-100 py-3 px-4 mb-4 mt-4">
@@ -285,20 +293,20 @@ const RenderForm = () => {
         <div className="flex items-center gap-4">
             <button
             className="btn-small-light"
-            // onClick={gotoHome}
+            onClick={gotoHome}
             >
             <LuArrowLeft className="text-[16px]" />
             <span className="hidden md:block">Home</span>
             </button>
-            {/* <TitleInput
-            title={DefaultChlng.title}
+            <TitleInput
+            title={DefaultInfo.title}
             setTitle={(value) =>
-            setDefaultChlng((prevState) => ({
+            setDefaultInfo((prevState) => ({
                 ...prevState,
                 title: value,
             }))
             }
-        /> */}
+        />
 
         </div>
         

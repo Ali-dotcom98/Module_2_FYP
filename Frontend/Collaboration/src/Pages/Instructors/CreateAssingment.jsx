@@ -4,7 +4,7 @@ import { API_PATH } from '../../Utility/ApiPath'
 import AxiosInstance from "../../Utility/AxiosInstance";
 
 import { LucideCirclePlus } from "lucide-react";
-// import moment from "moment"
+import moment from "moment"
 
 import Modal from "../../Layouts/Modal";
 import CreateAssinmentForm from "./Form/CreateAssinmentForm";
@@ -28,7 +28,7 @@ const navigate = useNavigate();
   }, []);
   return (
     <div>Form";
-        <div className="font-urbanist grid grid-cols-1 md:grid-cols-5 md:gap-5 pt-1 pb-6 px-4 md:px-0 min-h-screen">
+        <div className="font-urbanist grid grid-cols-1 md:grid-cols-5 md:gap-4 pt-1 pb-6 px-4 md:px-0 min-h-screen">
             <div
             className="h-[300px] flex flex-col gap-5 items-center justify-center border-2 border-dashed border-purple-300 rounded-md cursor-pointer "
             onClick={() => setOpenCreateModal(true)}
@@ -43,11 +43,11 @@ const navigate = useNavigate();
                 key={Challenge?._id}
                 imgurl={Challenge?.thumbnailLink || null}
                 title={Challenge?.title || "Untitled Resume"}
-                // lastUpdated={
-                // Challenge?.updatedAt
-                //     ? moment(Challenge.updatedAt).format("Do MMM YYYY")
-                //     : "Unknown"
-                // }
+                lastUpdated={
+                Challenge?.updatedAt
+                    ? moment(Challenge.updatedAt).format("Do MMM YYYY")
+                    : "Unknown"
+                }
                 onSelect={() => navigate(`/EditAssingments/${Challenge._id}` )}
             />
             ))}

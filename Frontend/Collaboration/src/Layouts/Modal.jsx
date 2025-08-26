@@ -18,7 +18,7 @@ const Modal = ({
 
   return (
     <div className="font-urbanist fixed inset-0 z-50 flex justify-center items-center w-full h-full bg-black/40">
-      <div className={`relative bg-white flex flex-col   shadow-lg rounded-lg overflow-hidden ${type == "Banner" ? "w-[39vw] h-[50vh]": type=="Confirmation"?"w-[45vw] h-[60vh]" : type ==="Groups" ?"w-[60vw] h-[95vh]":"w-[95vw] h-[105vh]"} `}>
+      <div className={`relative bg-white flex flex-col   shadow-lg rounded-lg  ${type == "Banner" ? "w-[39vw] h-[50vh] overflow-hiddn": type=="Confirmation"?"w-[45vw] h-[60vh] overflow-hiddn" : type ==="Groups" ?"w-[60vw] h-[95vh] overflow-y-scroll":"w-[95vw] h-[105vh] overflow-hiddn"} `}>
 
         {/* Header */}
         {!hideHeader && (
