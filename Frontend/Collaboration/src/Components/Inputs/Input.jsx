@@ -21,6 +21,7 @@ const Input = ({ value, onchange, label, placeholder, type }) => {
           className="p-3 pr-10 bg-slate-50 outline-none rounded-md w-full"
           value={value}
           onChange={(e) => onchange(e)}
+          min="1"
         />
 
         {type === "password" && (

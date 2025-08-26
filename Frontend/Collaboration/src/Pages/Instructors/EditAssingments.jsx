@@ -8,13 +8,14 @@ import AxiosInstance from '../../Utility/AxiosInstance'
 import { API_PATH } from '../../Utility/ApiPath'
 import AssignmentBasicInfoForm from './Form/AssignmentBasicInfoForm'
 import AssignmentBodyForm from './Form/AssignmentBodyForm'
+import Settings from './Form/Settings'
 
 const EditAssingments = () => {
     const navigator = useNavigate();
     const resumeRef = useRef();
 
     const {AssingmentId} = useParams();
-    const [currentPage, setcurrentPage] = useState("assignment-body")
+    const [currentPage, setcurrentPage] = useState("basic-info")
     const [errorMsg, seterrorMsg] = useState("")
     const [isLoading, setisLoading] = useState(false)
     const [DeleteModel, setDeleteModel] = useState(false)
@@ -55,6 +56,8 @@ const EditAssingments = () => {
 
     })
 
+    console.log("DefaultInfo",DefaultInfo);
+    
     const FetchAssingment = async()=>{
         try {
             const result = await AxiosInstance.get(API_PATH.ASSIGN.ASSINGMENTSID(AssingmentId))
@@ -70,7 +73,15 @@ const EditAssingments = () => {
                     difficulty : data.difficulty || prev.difficulty,
                     questions : data.questions || prev.questions,
                     sections : data.sections || prev.sections,
-                    settings: data.settings || prev.settings, 
+                    settings: {
+                        ...prev.settings,              
+                        ...data.settings,             
+                        groupSettings: {
+                            ...prev.settings.groupSettings,       
+                            ...(data.settings?.groupSettings || {})
+                        }
+                    }
+
 
                 }))
             }
@@ -82,48 +93,103 @@ const EditAssingments = () => {
     }
 
 
+const RenderForm = () => {
+    switch (currentPage) {
+        case "basic-info":
+            return (
+            <AssignmentBasicInfoForm
+                title={DefaultInfo?.title}
+                description={DefaultInfo?.description}
+                dueDate={DefaultInfo?.dueDate}
+                totalMarks={DefaultInfo?.totalMarks}
+                difficulty = {DefaultInfo?.difficulty}
+                UpdateSection = {(key,value)=>UpdateSection(null ,null,  key , value)}
+            />
+            );
 
-    const RenderForm = () => {
-  switch (currentPage) {
-    case "basic-info":
-      return (
-        <AssignmentBasicInfoForm
-          title={DefaultInfo?.title}
-          description={DefaultInfo?.description}
-          dueDate={DefaultInfo?.dueDate}
-          totalMarks={DefaultInfo?.totalMarks}
-          difficulty = {DefaultInfo?.difficulty}
-        //   updateSection={(key, value) => updateSection(key, value)}
-        />
-      );
+        case "assignment-body":
+        return (
+            <AssignmentBodyForm
+            questions={DefaultInfo?.questions}
+            addQuestion={(newQ) => AddItemInArray("questions", newQ)}
+            removeQuestion={(index) => RemoveItemInArray("questions", index)}
+            UpdateItemInArray={(index, key, value) =>
+                UpdateItemInArray("questions", index, key, value)
+            }
+            AddItemInNestedArray= {(index, key, value)=>AddItemInNestedArray("questions",index, key , value)}
+            UpdateItemInNestedArray = {(index, subindex , key , value)=>UpdateItemInNestedArray("questions",index , subindex ,key ,value)}
+            />
+        );
 
-    case "assignment-body":
-      return (
-        <AssignmentBodyForm
-          questions={DefaultInfo?.questions}
-          addQuestion={(newQ) => AddItemInArray("questions", newQ)}
-          removeQuestion={(index) => RemoveItemInArray("questions", index)}
-          updateQuestion={(index, key, value) =>
-            updateArrayItem("questions", index, key, value)
-          }
-        />
-      );
+        case "settings":
+            return (
+            <Settings
+            
+            allowLateSubmission={DefaultInfo?.settings?.allowLateSubmission}
+            visibility={DefaultInfo?.settings?.visibility}
+            groupsDetail={DefaultInfo?.settings?.groupSettings?.groupsDetail}
+            studentsPerGroup={DefaultInfo?.settings?.groupSettings?.studentsPerGroup}
+            assignmentMode={DefaultInfo?.settings?.groupSettings?.assignmentMode}
+            numberOfGroups={DefaultInfo?.settings?.groupSettings?.numberOfGroups}
+            UpdateSection={(subsection ,key, value ) => UpdateSection("settings", subsection , key, value)}
+            />
+            );
 
-    // case "settings":
-    //   return (
-    //     <AssignmentSettingsForm
-    //       groups={DefaultAssignment?.groups}
-    //       studentsPerGroup={DefaultAssignment?.studentsPerGroup}
-    //       allowLateSubmission={DefaultAssignment?.allowLateSubmission}
-    //       isPublic={DefaultAssignment?.isPublic}
-    //       updateSection={(key, value) => updateSection(key, value)}
-    //     />
-    //   );
-
-    default:
-      return null;
+        default:
+        return null;
   }
 };
+
+    const UpdateSection = (section , subsection, key , value)=>
+    {
+        if(!section)
+        {
+            setDefaultInfo((prev)=>({
+                ...prev,
+                [key]: value
+            }))
+        }  
+        if(section && !subsection)
+        {
+            setDefaultInfo((prev)=>({
+                ...prev,
+                [section]:
+                {
+                    ...prev[section],
+                    [key]: value
+                }
+            }))
+        }
+        if(section && subsection)
+        {
+            setDefaultInfo((prev)=>({
+                ...prev,
+                [section]:{
+                    ...prev[section],
+                    [subsection]:
+                    {
+                        ...prev[section][subsection],
+                        [key] : value
+                    }
+                }
+            }))
+        }
+    }
+    const UpdateItemInArray = (section , index , key , value)=>{
+        setDefaultInfo((prev)=>{
+            const updateArray = [...prev[section]]
+            updateArray[index]={
+                ...updateArray[index],
+                [key]:value
+            }
+            return(
+                {
+                    ...prev,
+                    [section]: updateArray
+                }
+            )
+        })
+    }
 
     const AddItemInArray = (key , value)=>{
         setDefaultInfo((prev)=>(
@@ -138,6 +204,37 @@ const EditAssingments = () => {
         ))
     }
 
+    const AddItemInNestedArray= (section , index ,key , value)=>{
+        setDefaultInfo((prev)=>{
+            const updateArray = [...prev[section]]
+            updateArray[index]={
+                ...updateArray[index],
+                [key]: [...updateArray[index][key], value]
+            }
+            return (
+                {
+                    ...prev,
+                    [section]: updateArray
+                }
+            )
+        })
+    }
+    const UpdateItemInNestedArray= (section , index, subindex ,key , value)=>{
+            setDefaultInfo((prev) => {
+            const updateArray = [...prev[section]];
+            updateArray[index] = {
+            ...updateArray[index],
+            [key]: updateArray[index][key].map((item, idx) =>
+                idx === subindex ? value : item
+            ),
+            };
+            return {
+            ...prev,
+            [section]: updateArray,
+            };
+        });
+    }
+
     const RemoveItemInArray = (section , index)=>{
         setDefaultInfo((prev)=>{
             const updateArray = [...prev[section]]
@@ -149,6 +246,33 @@ const EditAssingments = () => {
             }
             )
         })
+    }
+    const goBack = ()=>{
+        const Pages = [
+            "basic-info",
+            "assignment-body",
+            "settings"
+        ]
+        const index = Pages.indexOf(currentPage);
+        setcurrentPage(Pages[index-1]);
+         const percent = Math.round(((index-1) / (Pages.length - 1)) * 100);
+        setprogress(percent)
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    const Next = ()=>{
+        const Pages = [
+            "basic-info",
+            "assignment-body",
+            "settings"
+        ]
+        const index = Pages.indexOf(currentPage);
+        setcurrentPage(Pages[index+1]);
+        const percent = Math.round(((index+1) / (Pages.length - 1)) * 100);
+        setprogress(percent)
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    const validateAndNext = ()=>{
+        Next();
     }
 
     useEffect(()=>{
@@ -199,8 +323,9 @@ const EditAssingments = () => {
         </div>
         <div className='w-full flex flex-col md:flex-row gap-2 '>
             <div className='flex flex-col md:flex-row w-full gap-2'>
-               <div className='border border-red p-2 w-[20vh] space-y-2'>
+               <div className='text-xs space-y-5 flex flex-row md:flex-col   w-full  p-2 md:w-[20vh] py-3 border border-purple-100 rounded-md md:h-[83vh] items-center justify-center md:justify-start '>
                     {/* Short Answer */}
+                    <h1 className='text-sm font-medium text-center mt-3 hidden md:block'>Types</h1>
                     <button
                         className='border w-full'
                         onClick={() =>
@@ -229,7 +354,7 @@ const EditAssingments = () => {
                         })
                         }
                     >
-                        Multiple Choice
+                        MCQs
                     </button>
 
                     {/* True/False */}
@@ -264,13 +389,10 @@ const EditAssingments = () => {
                         Paragraph
                     </button>
                     </div>`
-
-
                 {/* Form */}
                 <div className='w-full '>
                     <div className="bg-white rounded-lg border border-purple-100 overflow-hidden">
-                        <StepProgress progress= {10} />
-                        
+                        <StepProgress progress= {progress} />
                         { 
                         RenderForm(currentPage)
                         }
@@ -285,7 +407,7 @@ const EditAssingments = () => {
                         
                         <div className="flex items-end justify-end  p-5 gap-3">
                         <button
-                            // onClick={goBack}
+                            onClick={goBack}
                             disabled={currentPage === "basic-info"}
                             className={`btn-small-light ${currentPage === "basic-info" ? "cursor-none opacity-50" : ""}`}
                         >
@@ -307,13 +429,13 @@ const EditAssingments = () => {
 
                         <button
                             className="btn-small flex items-center gap-2"
-                            // onClick={validateAndNext}
+                            onClick={validateAndNext}
                             disabled={isLoading}
                         >
-                            {currentPage === "examples" ? (
+                            {currentPage === "settings" ? (
                             <>
                                 <LuDownload className="text-[16px]" />
-                                Preview & Download
+                                Preview & Save
                             </>
                             ) : (
                             <>

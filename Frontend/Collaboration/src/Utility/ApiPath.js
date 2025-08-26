@@ -9,6 +9,7 @@ export const API_PATH = {
     ASSIGN: {
         CREATE: "/Assign/Create",
         ASSINGMENTS: "/Assign/Assingments",
-        ASSINGMENTSID: (ID) => `/Assign/Assingments/${ID}`
+        ASSINGMENTSID: (ID) => `/Assign/Assingments/${ID}`,
+        GETSTUDENTS: "/Assign/Students"
     }
 }

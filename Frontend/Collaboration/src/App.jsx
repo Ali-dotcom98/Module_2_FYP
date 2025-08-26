@@ -13,6 +13,7 @@ const App = () => {
     <UserProvider>
       <Router>
         <Routes>
+            <Route index element={<Navigate to={"Login"}/>}/>
             <Route path="/Login" element={<Login/>} />
           
             <Route path="/Instructor"
