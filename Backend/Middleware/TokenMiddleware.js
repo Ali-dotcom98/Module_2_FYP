@@ -3,7 +3,7 @@ const SecretKey = process.env.SECRET_KEY;
 
 
 const GenerateToken = (Payload) => {
-    const token = jwt.sign(Payload, SecretKey, { "expiresIn": "1hr" })
+    const token = jwt.sign(Payload, SecretKey, { "expiresIn": "10hr" })
     return token;
 }
 const VerifyToken = (token) => {
