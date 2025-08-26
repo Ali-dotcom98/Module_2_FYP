@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import React from "react";
 
-const Paragraph = ({ item, updateSection , index ,removeQuestion }) => {
+const Paragraph = ({ item, updateSection , index ,removeQuestion , UpdateItemInArray}) => {
   return (
     <div className="border border-dashed px-3 py-1 mt-3 rounded-md">
       <div className="col-span-2 mt-3">
@@ -16,7 +16,7 @@ const Paragraph = ({ item, updateSection , index ,removeQuestion }) => {
               min="1"
               value={item.marks}
               className="bg-slate-50 outline-none rounded-md w-12 text-center"
-              onChange={({ target }) => updateSection("marks", target.value)}
+              onChange={({ target }) => UpdateItemInArray(index,"marks", target.value)}
             />
           </div>
         </div>
@@ -27,7 +27,7 @@ const Paragraph = ({ item, updateSection , index ,removeQuestion }) => {
           className="form-input resize-none mt-2 w-full"
           rows={3}
           value={item.questionText || ""}
-          onChange={({ target }) => updateSection("questionText", target.value)}
+          onChange={({ target }) => UpdateItemInArray(index,"questionText", target.value)}
         />
 
         {/* Answer (Paragraph Input) */}
@@ -36,7 +36,7 @@ const Paragraph = ({ item, updateSection , index ,removeQuestion }) => {
           className="form-input resize-none mt-2 w-full"
           rows={5}
           value={item.answer || ""}
-          onChange={({ target }) => updateSection("answer", target.value)}
+          onChange={({ target }) => UpdateItemInArray(index,"answer", target.value)}
         />
       </div>
       <button onClick={()=>removeQuestion(index)} className='flex items-center justify-end text-sm  w-full'>

@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import React from 'react'
 
-const ShortAnswers = ({item , removeQuestion, index}) => {
+const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray}) => {
   return (
     <div className=' border border-dashed px-3 py-1 mt-3 rounded-md'>
             <div className="col-span-2 mt-3 ">
@@ -13,7 +13,7 @@ const ShortAnswers = ({item , removeQuestion, index}) => {
                         <label className="text-xs font-medium text-slate-600">
                             Marks    
                         </label>
-                            <input type="number" min="1" value={item.marks} className='bg-slate-50 outline-none rounded-md w-12 text-center' />
+                            <input type="number" min="1" value={item.marks}  onChange={({target})=>UpdateItemInArray(index , "marks", target.value)} className='bg-slate-50 outline-none rounded-md w-12 text-center' />
                     </div>
                 </div>
                 <textarea
@@ -21,7 +21,7 @@ const ShortAnswers = ({item , removeQuestion, index}) => {
                     className="form-input resize-none"
                     rows={4}
                     value={item.questionText|| ""}
-                    onChange={({ target }) => updateSection("questionText", target.value)}
+                    onChange={({ target }) => UpdateItemInArray(index , "questionText", target.value)}
                 />
                 <button onClick={()=>removeQuestion(index)} className='flex items-center justify-end text-sm  w-full'>
                     <div className='text-red-500'>

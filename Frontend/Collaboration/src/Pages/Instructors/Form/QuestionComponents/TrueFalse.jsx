@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import React from 'react'
 
-const TrueFalse = ({ item, updateSection , index  , removeQuestion}) => {
+const TrueFalse = ({ item, updateSection , index  , removeQuestion, UpdateItemInArray}) => {
   return (
     <div className='border border-dashed px-3 py-1 mt-3 rounded-md'>
       <div className="col-span-2 mt-3">
@@ -18,9 +18,9 @@ const TrueFalse = ({ item, updateSection , index  , removeQuestion}) => {
               min="1"
               value={item.marks}
               className='bg-slate-50 outline-none rounded-md w-12 text-center'
-              // onChange={({ target }) =>
-              //   updateSection("marks", target.value)
-              // }
+              onChange={({ target }) =>
+                UpdateItemInArray(index, "marks", target.value)
+              }
             />
           </div>
         </div>
@@ -31,7 +31,7 @@ const TrueFalse = ({ item, updateSection , index  , removeQuestion}) => {
           className="form-input resize-none mt-2 w-full"
           rows={3}
           value={item.questionText || ""}
-          onChange={({ target }) => updateSection("questionText", target.value)}
+          onChange={({ target }) => UpdateItemInArray(index ,"questionText", target.value)}
         />
 
         {/* True/False Options */}
@@ -41,7 +41,7 @@ const TrueFalse = ({ item, updateSection , index  , removeQuestion}) => {
               type="radio"
               name={`true_false_${item.id}`}
               checked={item.answer === "True"}
-              onChange={() => updateSection("answer", "True")}
+              onChange={() => UpdateItemInArray(index,"answer", "True")}
             />
             True
           </label>
@@ -51,7 +51,7 @@ const TrueFalse = ({ item, updateSection , index  , removeQuestion}) => {
               type="radio"
               name={`true_false_${item.id}`}
               checked={item.answer === "False"}
-              onChange={() => updateSection("answer", "False")}
+              onChange={() => UpdateItemInArray(index ,"answer", "False")}
             />
             False
           </label>
