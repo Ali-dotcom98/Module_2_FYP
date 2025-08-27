@@ -17,8 +17,8 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
   const [groupsDetails, setGroupsDetails] = useState([]);
 
 
-  console.log("groupsDetails",groupsDetails);
-  console.log("studentPool",studentPool);
+  console.log("groupsDetail",groupsDetail);
+
   
   
 
@@ -52,12 +52,11 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
     setdisplayGroups(false);  
   }
 
-  const handleDragEnd = (result) => {
+ const handleDragEnd = (result) => {
   if (!result.destination) return;
 
   const { source, destination } = result;
 
-  // same place? do nothing
   if (
     source.droppableId === destination.droppableId &&
     source.index === destination.index
@@ -76,22 +75,25 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
     updatedGroups[parseInt(source.droppableId)].students.splice(source.index, 1);
   }
 
-  // --- Check if destination group is full
-  if (destination.droppableId !== "studentPool") {
-    const destGroup = updatedGroups[parseInt(destination.droppableId)];
-    if (destGroup.students.length >= Number(studentPerGroup)) {
-      // put student back to original list
-      if (source.droppableId === "studentPool") {
-        updatedPool.splice(source.index, 0, movedStudent);
-      } else {
-        updatedGroups[parseInt(source.droppableId)].students.splice(source.index, 0, movedStudent);
-      }
-      alert(`Group ${parseInt(destination.droppableId) + 1} already has max ${studentPerGroup} students`);
-      return;
-    }
-  }
+  // Restriction logic
+  // Restriction logic
+if (destination.droppableId !== "studentPool" && studentPerGroup > 0) {
+  const destGroup = updatedGroups[parseInt(destination.droppableId)];
 
-  // Add student to destination
+  console.log("Checking group capacity", {
+    destGroupSize: destGroup.students.length,
+    limit: studentPerGroup
+  });
+
+  if (destGroup.students.length >= studentPerGroup) {
+    alert(`Group ${parseInt(destination.droppableId) + 1} already has max ${studentPerGroup} students`);
+    return;
+  }
+}
+
+
+
+  // Add student to destination 
   if (destination.droppableId === "studentPool") {
     updatedPool.splice(destination.index, 0, movedStudent);
   } else {
@@ -103,11 +105,27 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
 };
 
 
-  useEffect(()=>{
-    {
-      (student.length % studentPerGroup) == 0 ? setgroups(student.length / studentPerGroup) : setgroups(0)
-    }
-  },[studentPerGroup])
+
+useEffect(() => {
+  setgroups(numberOfGroups);
+  if (groupsDetail) {
+    setGroupedStudents(groupsDetail);
+  }
+}, [numberOfGroups]);
+
+
+
+
+  useEffect(() => {
+
+  if (studentPerGroup > 0) {
+    const calculatedGroups = Math.ceil(student.length / studentPerGroup);
+    setgroups(calculatedGroups)
+    UpdateSection("groupSettings", "numberOfGroups", Number(calculatedGroups));
+  } 
+}, [studentPerGroup, student.length]);
+
+
   useEffect(()=>{
     fetchStudent();
   },[])
@@ -176,18 +194,23 @@ useEffect(() => {
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <Input
-                value={studentsPerGroup}
-                onchange={({ target }) => (UpdateSection("groupSettings","studentsPerGroup", target.value) ,setstudentPerGroup(target.value))}
-                label="Student per Group"
-                placeholder="2"
-                type="Number"
+                  value={studentsPerGroup}
+                  onchange={({ target }) => {
+                    const val = Number(target.value); 
+                    UpdateSection("groupSettings", "studentsPerGroup", val);
+                    setstudentPerGroup(val);
+                  }}
+                  label="Student per Group"
+                  placeholder="2"
+                  type="Number"
                 />
+
                   <Input
-                value={groups}
-                onchange={({ target }) => UpdateSection("groupSettings","numberOfGroups", target.value)}
+                value={numberOfGroups}
                 label="Groups"
                 placeholder="3"
                 type="Number"
+                disabled= {true}
 
                 />
             </div>
@@ -238,7 +261,7 @@ useEffect(() => {
                 // ✅ Instructor Mode (drag and drop)
                 <DragDropContext onDragEnd={handleDragEnd}>
                   {/* Student Pool */}
-                  <Droppable droppableId="studentPool" direction="vertical" isDropDisabled={groupsDetails.length >= Number(studentPerGroup)}>
+                  <Droppable droppableId="studentPool" direction="vertical" >
                     {(provided) => (
                       <div
                         ref={provided.innerRef}

@@ -286,6 +286,27 @@ const RenderForm = () => {
     window.scrollTo(0, 0);
     }, []);
 
+
+    const updateChallengeDetails = async () => {
+    try {
+        setisLoading(true);
+       
+
+        const response = await AxiosInstance.put(
+            API_PATH.ASSIGN.UPDATE(AssingmentId),
+            {
+                ...DefaultInfo,
+            }
+        );
+        gotoHome();
+       
+    } catch (err) {
+        console.error("Error capturing image:", err);
+    } finally {
+        setisLoading(false);
+    }
+};
+
   return (
       <div className="container mx-auto font-urbanist">
         <div className="flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-100 py-3 px-4 mb-4 mt-4">
@@ -427,7 +448,7 @@ const RenderForm = () => {
 
                     <button
                         className="btn-small-light flex items-center gap-2 border"
-                        // onClick={upLoadChallengeImage}
+                        onClick={updateChallengeDetails}
                         disabled={isLoading}
                     >
                         <LuSave className="text-[16px]" />

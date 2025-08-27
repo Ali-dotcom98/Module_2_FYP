@@ -1,5 +1,6 @@
 import React from 'react'
 import Input from '../../../Components/Inputs/Input'
+import moment from 'moment'
 
 const AssignmentBasicInfoForm = ({title , description ,dueDate ,difficulty, totalMarks ,UpdateSection}) => {
   return (
@@ -42,7 +43,8 @@ const AssignmentBasicInfoForm = ({title , description ,dueDate ,difficulty, tota
                 </div>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <Input
-                    value={dueDate || ""}
+                    value={moment(dueDate).format("YYYY-MM-DD")
+}
                     onchange={({ target }) => UpdateSection("dueDate", target.value)}
                     label="Date"
                     placeholder="Max and Min Number"
