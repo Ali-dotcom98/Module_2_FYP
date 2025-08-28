@@ -41,12 +41,11 @@ const AssignmentSchema = new mongoose.Schema({
             studentsPerGroup: { type: Number },
             assignmentMode: { type: String, enum: ["random", "instructor"], default: "random" },
             groupsDetail: [
-                [
-                    {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "User"
-                    }
-                ]
+                [{
+                    _id: String,
+                    name: String,
+                    status: String
+                }]
             ]
         },
         allowLateSubmission: { type: Boolean, default: false },

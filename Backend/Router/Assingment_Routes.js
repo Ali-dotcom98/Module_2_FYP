@@ -53,6 +53,25 @@ route.post("/Create", Protect, async (req, res) => {
     }
 })
 
+route.put("/Update/:id", Protect, async (req, res) => {
+    try {
+        const status = req.user.status;
+        if (status == "Student")
+            return res.status(401).json({ message: "Student are Not Allowed" })
+
+        const id = req.params.id;
+
+        const Assingment = await Assingment_Model.findOne({ _id: id });
+        if (!Assingment)
+            return res.send("The challenge ID you are looking for does not exist.")
+
+        Object.assign(Assingment, req.body);
+        const savedChallenge = await Assingment.save();
+        res.send(savedChallenge)
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+})
 route.get("/Assingments", Protect, async (req, res) => {
     try {
         const Assingments = await Assingment_Model.find({
