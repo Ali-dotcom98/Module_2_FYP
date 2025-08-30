@@ -11,11 +11,10 @@ const VerifyToken = (token) => {
 }
 
 const Protect = (req, res, next) => {
-    console.log("In protect");
 
 
     let token = req.headers.authorization?.split(" ")[1];
-    console.log(token);
+
 
 
     if (!token) {

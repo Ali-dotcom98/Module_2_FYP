@@ -80,7 +80,6 @@ routes.get("/profile", Protect, async (req, res) => {
         if (!UserProfile) {
             res.status(404).json({ message: "User Not Found" })
         }
-        console.log(UserProfile);
 
         res.json({ user: UserProfile });
 

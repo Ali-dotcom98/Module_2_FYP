@@ -107,4 +107,29 @@ route.get("/Students", Protect, async (req, res) => {
 
 })
 
+// GET single assignment where a specific student is enrolled
+route.get("/student", Protect, async (req, res) => {
+    try {
+        console.log(req.user._id);
+
+        const assignment = await Assingment_Model.find({
+            "settings.groupSettings.groupsDetail": {
+                $elemMatch: {
+                    $elemMatch: { _id: req.user._id }
+                }
+            }
+        });
+
+        if (!assignment) {
+            return res.status(404).json({ message: "Assignment not found for this student" });
+        }
+
+        res.json(assignment);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
 module.exports = route
