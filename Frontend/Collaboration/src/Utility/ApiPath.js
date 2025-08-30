@@ -11,7 +11,8 @@ export const API_PATH = {
         UPDATE: (ID) => `/Assign/Update/${ID}`,
         ASSINGMENTS: "/Assign/Assingments",
         ASSINGMENTSID: (ID) => `/Assign/Assingments/${ID}`,
-        GETSTUDENTS: "/Assign/Students"
+        GETSTUDENTS: "/Assign/Students",
+        STUDENTASSINGMENTS: "/Assign/student"
 
     }
 }
