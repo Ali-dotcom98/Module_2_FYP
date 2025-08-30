@@ -8,6 +8,7 @@ import Dashboard_Student from "./Pages/Students/DashBoard/Dasboard"
 import DefaultLayout from "./Layouts/Default/Default"
 import CreateAssingment from './Pages/Instructors/CreateAssingment';
 import EditAssingments from './Pages/Instructors/EditAssingments';
+import EditAssingment from './Pages/Students/EditAssingment/EditAssingment';
 const App = () => {
   return (
     <UserProvider>
@@ -40,7 +41,15 @@ const App = () => {
               </ProtectRoutes>}
             >
               <Route path='' element={<Dashboard_Student/>} />
+              
             </Route>
+
+            
+            <Route path="/CollaborationPannel/:AssingmentId"
+              element= {<ProtectRoutes status = {["Student"]}>
+                <EditAssingment/>
+              </ProtectRoutes>}
+            ></Route>
         </Routes>
       </Router>
     </UserProvider>
