@@ -22,6 +22,7 @@ const Input = ({ value, onchange, label, placeholder, type , disabled }) => {
           className="p-3 pr-10 bg-slate-50 outline-none rounded-md w-full"
           value={value}
           onChange={(e) => onchange(e)}
+          autoComplete={type === "email" ? "email" : "on"} 
           min="1"
         />
 
