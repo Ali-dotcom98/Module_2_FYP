@@ -17,7 +17,6 @@ const UserProvider = ({ children }) => {
         const fetchUserData = async () => {
             try {   
                 const result = await AxiosInstance.get(API_PATH.AUTH.PROFILE);
-                console.log("result",result.data.user);
         
                 setUser(result.data.user);
             } catch (error) {
