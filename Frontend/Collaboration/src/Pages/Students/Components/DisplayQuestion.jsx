@@ -13,6 +13,7 @@ const DisplayQuestion = ({item , index}) => {
                     <ShortAnswers
                         item={item}
                         index={index}
+                        type ={"Students"}
                     />
                 );
             case "true_false":
