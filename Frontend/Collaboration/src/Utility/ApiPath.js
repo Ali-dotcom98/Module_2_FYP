@@ -13,6 +13,10 @@ export const API_PATH = {
         ASSINGMENTSID: (ID) => `/Assign/Assingments/${ID}`,
         GETSTUDENTS: "/Assign/Students",
         STUDENTASSINGMENTS: "/Assign/student"
-
+    },
+    PARTIAL:
+    {
+        CREATE: "/Partial/Create",
+        SAVE: (ID) => `/Partial/Save/${ID}`
     }
 }
