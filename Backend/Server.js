@@ -17,12 +17,20 @@ const io = new Server(server, {
     },
 });
 
+const onlineUsers = {};
+
 io.on("connection", (socket) => {
     console.log(socket.id, "Connected");
 
     socket.on("joinGroup", async ({ assignmentId, User }) => {
+
+        onlineUsers[User._id] = socket.id;
+        io.emit("updateOnlineStatus", Object.keys(onlineUsers));
+
+
         const assignment = await Assingment_Model.findById(assignmentId);
         if (!assignment) return;
+
 
         let groupIndex = null;
         assignment.settings.groupSettings.groupsDetail.forEach((group, idx) => {
@@ -45,7 +53,8 @@ io.on("connection", (socket) => {
         // Also tell the joining user their group
         socket.emit("userJoined", {
             name: User.name,
-            groupId: groupName
+            groupId: groupName,
+            id: User._id
         });
 
         console.log(`User ${User.name} joined room ${groupName}`);
@@ -62,15 +71,30 @@ io.on("connection", (socket) => {
         io.to(SocketGroup).emit("receiveMessage", User, message);
     });
 
-    socket.on("typing", ({ groupName, userName, isTyping }) => {
-        // Notify all other users in the group except the sender
-        socket.to(groupName).emit("userTyping", { userName, isTyping });
+    socket.on("Typing", (SocketGroup, User, Flag) => {
+
+        socket.to(SocketGroup).emit("userTyping", User, Flag);
     });
+
+    socket.on("TypingFinish", (SocketGroup, User) => {
+
+        socket.to(SocketGroup).emit("userTyping", User, false);
+    });
+
+    socket.on("Answering", (User, SocketGroup, currentIndex, answer, Flag) => {
+        socket.to(SocketGroup).emit("Answering", User, currentIndex, answer, Flag)
+    })
+
 
 
     socket.on("disconnect", () => {
-        console.log(socket.id, "Disconnected");
-        socket.broadcast.emit("Welcome", `${socket.id} has Left the Server`);
+        for (const userId in onlineUsers) {
+            if (onlineUsers[userId] === socket.id) {
+                delete onlineUsers[userId];
+                break;
+            }
+        }
+        io.emit("updateOnlineStatus", Object.keys(onlineUsers));
     });
 });
 
@@ -84,6 +108,7 @@ const AssingmentRoutes = require("./Router/Assingment_Routes.js");
 const User_Model = require("./Models/User_Model.js");
 const PartialSubmission = require("./Router/PartialSubmission_Route.js");
 const Assingment_Model = require("./Models/Assingment_Model.js");
+const { log } = require("console");
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
