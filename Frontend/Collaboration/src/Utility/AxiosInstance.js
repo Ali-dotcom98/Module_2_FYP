@@ -16,7 +16,7 @@ AxiosInstance.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem("token");
         if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`; // ✅ one space only
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
     },
