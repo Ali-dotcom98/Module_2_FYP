@@ -14,21 +14,35 @@ const partialSubmissionSchema = new mongoose.Schema({
                 default: "short_answer"
             },
             questionText: { type: String, },
-            options: [String], // for MCQs only
+            options: [String],
             marks: { type: Number },
             answer: { type: String },
             isLocked: {
                 type: Boolean,
-                default: false, // when user submits partial, lock for others
+                default: false,
             },
             lockedby: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
                 default: null
-            }
+            },
+            vote: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User"
+                }
+            ]
         }
     ],
 
+    status: {
+        type: String,
+        enum: ["in_progress", "submitted", "graded"],
+        default: "in_progress"
+    },
+    obtainedMarks: { type: Number, default: 0 },
+    feedback: { type: String },
+    isPassed: { type: Boolean, default: false },
 
     Students: [
         {
