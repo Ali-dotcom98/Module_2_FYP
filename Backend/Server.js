@@ -85,6 +85,15 @@ io.on("connection", (socket) => {
         socket.to(SocketGroup).emit("Answering", User, currentIndex, answer, Flag)
     })
 
+    socket.on("Save", (SocketGroup, User, currentIndex) => {
+        socket.to(SocketGroup).emit("SaveBy", User, currentIndex)
+    })
+
+    socket.on("Votes", (SocketGroup, User, currentIndex) => {
+        socket.to(SocketGroup).emit("UpdateVotes", User, currentIndex)
+
+    })
+
 
 
     socket.on("disconnect", () => {
