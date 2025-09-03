@@ -56,7 +56,7 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion ,UpdateIte
     }
 
   return (
-    <div className='px-5 pt-5 min-h-[32vw]'>
+    <div className='px-5 pt-5 min-h-[32vw] space-y-5'>
         <div>AssignmentBodyForm</div>
         {
             questions.map((item , index)=>(

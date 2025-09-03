@@ -1,4 +1,4 @@
-import { Lock, Save, Unlock, X } from 'lucide-react'
+import { Indent, Lock, Save, Unlock, X } from 'lucide-react'
 import React, { useState } from 'react'
 import { useContext } from 'react'
 import {UserContext} from '../../../../ContextApi/UserContext'
@@ -12,7 +12,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
     
   return (
     <>
-        <div className=' border border-dashed border-purple-300 px-3 py-2  rounded-md'>
+        <div className=' border border-dashed border-purple-300 px-3 py-2  rounded-md overflow-y-scroll'>
             <div className="col-span-2 mt-3 ">
                 <div className='flex items-center justify-between'>
                     <label className="text-sm font-medium text-slate-600">
@@ -65,10 +65,10 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                                 </label>
                             </div>
                             <textarea
-                                placeholder={WhoIsAnswering ? `${WhoIsAnswering?.name} is answering ...  ` : "Answer Here"}
+                                placeholder={WhoIsAnswering && DisableQuestionbyIndex===index ? `${WhoIsAnswering?.name} is answering ...  ` : "Answer Here"}
                                 disabled={
                                     item.isLocked 
-                                    || (WhoIsAnswering && WhoIsAnswering?._id !== User._id && DisableQuestionbyIndex === index) // case 2: someone else is typing
+                                    || (WhoIsAnswering && WhoIsAnswering?._id !== User._id && DisableQuestionbyIndex === index) 
                                 }
                                 className={`w-full text-sm  outline-none border   px-2.5 py-3 rounded-md mt-2 placeholder:text-gray-500 focus-within:border-purple-300 resize-none ${type ? "h-32":""}  ${ WhoIsAnswering && WhoIsAnswering?._id !== User._id && DisableQuestionbyIndex == index ?"border-slate-200 bg-slate-100 text-gray-400 font-medium italic":"border-slate-100 bg-white text-black"}`}
                                 rows={4}
@@ -91,16 +91,27 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                     type  && (
                         <div className='flex items-center justify-between w-full'>
                             {
-                                DisplayAnswer  && DisableQuestionbyIndex == index &&  (
+                                DisplayAnswer  && DisableQuestionbyIndex == index && !item.isLocked &&   (
                                     <div className='w-full'>
                                         <p className="w-fit text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md">{WhoIsAnswering.name} is Typing ....</p>
                                     </div>
                                 )
                             }
+                            {
+                                item.isLocked && (
+                                    <p className="w-full">
+                                        <div className='w-fit flex  text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md space-x-1'>
+                                            <h1>Save By </h1>
+                                            <p> {item.lockedby.name}</p>
+                                        </div>
+                                    </p>
+
+                                )
+                            }
 
                         <div className="flex items-center justify-end text-sm w-full">
                             <button
-                                disabled={item.isLocked}
+                                disabled={item.isLocked || WhoIsAnswering != User._id  && DisableQuestionbyIndex == index}
                                 onClick={() => setConfirmSave(true)}
                                 className={`btn-small-light w-fit flex items-center gap-1
                                 ${item.isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
