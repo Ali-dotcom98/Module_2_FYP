@@ -8,9 +8,12 @@ route.post("/Create", Protect, async (req, res) => {
     try {
         const { AssingmentId, Questions, userGroup } = req.body;
 
+
         const existing = await PartialSubmission.findOne({
             assignmentId: AssingmentId,
-            "Students._id": req.user._id
+            "Students._id": req.user._id,
+            feedback: "",
+
         });
 
         if (existing) {
