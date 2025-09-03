@@ -33,6 +33,7 @@ const EditAssingment = () => {
     const [DisplayAnswer, setDisplayAnswer] = useState(false)
     const [displayTyping, setdisplayTyping] = useState(false)
     const [DisableQuestionbyIndex, setDisableQuestionbyIndex] = useState(null)
+    
 
     const [DefaultInfo, setDefaultInfo] = useState({
             title : "",
@@ -73,7 +74,7 @@ const EditAssingment = () => {
                 answer : "",
                 isLocked : false,
                 lockedby : "",
-                vote : ""
+                vote : []
             }
         ],
         Students: [
@@ -83,12 +84,16 @@ const EditAssingment = () => {
             online : false,
             }
         ],
+        status: "",
+        obtainedMarks:  0 ,
+        feedback: "",
+        isPassed:  false
         });
     console.log("PartialSubmission", PartialSubmission);
     
 
     const [SocketGroup, setSocketGroup] = useState("")
-
+    const [voteCount, setvoteCount] = useState(0)
     
     
     const FetchAssingment = async()=>{
@@ -178,7 +183,14 @@ const EditAssingment = () => {
     }, [])
 
 
-    useEffect(() => {
+ 
+
+
+
+
+
+
+useEffect(() => {
     socket.emit("joinGroup", { assignmentId: AssingmentId, User: User });
 
     const handleUserJoined = ({ name, groupId , id }) => {
@@ -206,7 +218,7 @@ const EditAssingment = () => {
             online: onlineUserIds.includes(student._id)
             }))
         }));
-        });
+});
 
     socket.on("Answering", (User , CurrentQuestion ,answer,  Flag)=>{
         setDisplayAnswer(Flag)
@@ -228,41 +240,13 @@ const EditAssingment = () => {
         })
 
     })
-    
 
-
-    socket.on("userJoined", handleUserJoined);
-    socket.on("receiveMessage", handleReceiveMessage);
-
-    return () => {
-        socket.off("userJoined", handleUserJoined);
-        socket.off("receiveMessage", handleReceiveMessage);
-        socket.off("userTyping")
-        socket.off("updateOnlineStatus")
-    };
-}, [AssingmentId, User]);
-
-
-    const handleSubmit = (e)=>{
-        e.preventDefault();
-        if (!text.trim()) return; 
-
-        socket.emit("sendMessage", {
-            SocketGroup,
-            User: User,
-            message: text,
-        });
-            
-        settext("");
-        socket.emit("TypingFinish", SocketGroup,User , false)
-    }
-
-    const HandleSave = ()=>{
+    socket.on("SaveBy", (User , CurrentQuestion)=>{
         setPartialSubmission((prev)=>{
             const updateArray = [...prev.Questions];
 
-            updateArray[currentIndex] ={
-                ...updateArray[currentIndex],
+            updateArray[CurrentQuestion] ={
+                ...updateArray[CurrentQuestion],
                 isLocked : true,
                 lockedby : User
             }
@@ -273,8 +257,106 @@ const EditAssingment = () => {
                 }
             )
         })
+        handleBlur()
+    })
+    
 
+    socket.on("UpdateVotes", (User , CurrentQuestion)=>{
+        setPartialSubmission((prev)=>{
+            const updateArray = [...prev.Questions]
+
+            updateArray[CurrentQuestion].vote  = [...updateArray[CurrentQuestion].vote , User._id]
+            return (
+                {
+                    ...prev,
+                    Questions : updateArray
+                }
+            )
+        })
+    })
+
+
+    socket.on("userJoined", handleUserJoined);
+    socket.on("receiveMessage", handleReceiveMessage);
+    return () => {
+        socket.off("userJoined", handleUserJoined);
+        socket.off("receiveMessage", handleReceiveMessage);
+        socket.off("userTyping")
+        socket.off("updateOnlineStatus")
+        socket.off("Answering")
+        socket.off("SaveBy")
+        
+    };
+    }, [AssingmentId, User]);
+
+useEffect(() => {
+    const totalStudents = PartialSubmission?.Students?.length || 0;
+
+    if (voteCount >= (totalStudents / 2) && totalStudents > 0) {
+        setPartialSubmission((prev) => {
+            const update = [...prev.Questions];
+            update[currentIndex] = {
+                ...update[currentIndex],
+                answer: "",
+                isLocked: false,
+                lockedby: "",
+                vote: []
+            };
+            return {
+                ...prev,
+                Questions: update
+            };
+        });
+
+        setvoteCount(0);
+        socket.emit("Answering", null, SocketGroup, currentIndex, "", false);
     }
+}, [voteCount, currentIndex, PartialSubmission?.Students?.length]);
+
+useEffect(() => {
+    if(PartialSubmission)
+    {
+        setvoteCount(PartialSubmission.Questions[currentIndex]?.vote?.length)
+    }
+}, [PartialSubmission , currentIndex])
+console.log("voteCount", voteCount);
+
+
+
+const handleSubmit = (e)=>{
+    e.preventDefault();
+    if (!text.trim()) return; 
+
+    socket.emit("sendMessage", {
+        SocketGroup,
+        User: User,
+        message: text,
+    });
+        
+    settext("");
+    socket.emit("TypingFinish", SocketGroup,User , false)
+}
+
+const HandleSave = ()=>{
+    setPartialSubmission((prev)=>{
+        const updateArray = [...prev.Questions];
+
+        updateArray[currentIndex] ={
+            ...updateArray[currentIndex],
+            isLocked : true,
+            lockedby : User
+        }
+        return (
+            {
+                ...prev ,
+                Questions : updateArray
+            }
+        )
+    })
+
+    socket.emit("Save", SocketGroup, User , currentIndex )
+
+}
 
 const NextQuestion = ()=>{
     
@@ -394,6 +476,31 @@ const handleBlur = () => {
   socket.emit("Typing", SocketGroup, User, false);
 };
 
+const CalculateVote = ()=>{
+    const Votes = PartialSubmission.Questions[currentIndex].vote.length
+    const TotalStudent = PartialSubmission.Students.length
+    return Math.floor((Votes/TotalStudent)*100)
+}
+
+const MangeVotes = ()=>{
+    setPartialSubmission((prev)=>{
+        const updateArray = [...prev.Questions]
+
+        updateArray[currentIndex].vote  = [...updateArray[currentIndex].vote , User._id]
+        return (
+            {
+                ...prev,
+                Questions : updateArray
+            }
+        )
+    })
+    socket.emit("Votes",SocketGroup, User , currentIndex )
+}
+
+const VerifyVote = ()=>{
+    const isexit = PartialSubmission.Questions[currentIndex].vote.includes(User._id);
+    return isexit
+}
 
     return (
     <div className=" px-5 py-4 font-urbanist flex gap-3 ">
@@ -449,21 +556,19 @@ const handleBlur = () => {
                                 
                                 <div className='w-full flex flex-col p-1 '>
                                     <p className="text-sm font-medium text-slate-600">Refinement Votes:</p>
-                                    <div className='flex items-center gap-4'>
+                                    <div className='flex items-center justify-between gap-4'>
                                         <div             
                                             className={ `h-0.5 w-full bg-gradient-to-r from-purple-500 to-purple-700 transition-all duration-300`}
-                                            style={{width : `${100}%`}}>
+                                            style={{width : `${CalculateVote()}%`}}>
 
                                         </div>
-                                        {PartialSubmission.Questions[currentIndex]?.vote ? (
-                                            <span>{PartialSubmission.Questions[currentIndex].vote}</span>
-                                        ) : (
-                                            <span>0/5</span>
-                                        )}
-                                       
+                                        <div className='flex text-sm font-medium text-slate-600'>
+                                            <p>{(PartialSubmission.Questions[currentIndex].vote).length}</p>/
+                                            <p>{PartialSubmission.Students.length}</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <button className='btn-small-light'>
+                                <button onClick={MangeVotes} className='btn-small-light' disabled={VerifyVote()}>
                                     <Vote className='size-4'/> <p>Vote</p>
                                 </button>
                             </div>

@@ -51,7 +51,7 @@ const DisplayQuestion = ({item , index , updateArrayItem , WhoIsAnswering , Disp
         }
     }
   return (
-    <div className='text-black'>
+    <div className='text-black '>
          {
              RenderTypeOfComponents(item.type , item ,index)
          }
