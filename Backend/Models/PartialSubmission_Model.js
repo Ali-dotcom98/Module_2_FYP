@@ -60,6 +60,12 @@ const partialSubmissionSchema = new mongoose.Schema({
                 default: "Student",
             },
         }
+    ],
+    SubmissionVote: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }
     ]
 
 }, { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } });
