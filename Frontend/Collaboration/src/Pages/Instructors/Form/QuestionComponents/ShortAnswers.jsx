@@ -7,7 +7,8 @@ import Model from "../../../../Layouts/Modal"
 const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateArrayItem, type , WhoIsAnswering  , DisplayAnswer, DisableQuestionbyIndex  , HandleSave}) => {
     const {User} = useContext(UserContext);
     const [ConfirmSave, setConfirmSave] = useState(false)
-    console.log("item",User);
+    console.log("WhoIsAnswering",WhoIsAnswering);
+    console.log("item",item);
     
     
   return (
@@ -111,7 +112,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
 
                         <div className="flex items-center justify-end text-sm w-full">
                             <button
-                                disabled={item.isLocked || WhoIsAnswering != User._id  && DisableQuestionbyIndex == index}
+                                disabled={item.isLocked || WhoIsAnswering && WhoIsAnswering != User._id  && DisableQuestionbyIndex == index}
                                 onClick={() => setConfirmSave(true)}
                                 className={`btn-small-light w-fit flex items-center gap-1
                                 ${item.isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
