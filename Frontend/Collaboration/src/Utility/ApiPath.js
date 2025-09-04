@@ -17,6 +17,7 @@ export const API_PATH = {
     PARTIAL:
     {
         CREATE: "/Partial/Create",
-        SAVE: (ID) => `/Partial/Save/${ID}`
+        SAVE: (ID) => `/Partial/Save/${ID}`,
+        UPDATE: (ID) => `/Partial/Update/${ID}`
     }
 }
