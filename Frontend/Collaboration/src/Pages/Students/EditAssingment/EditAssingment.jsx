@@ -1,7 +1,7 @@
 import React, { use, useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import AxiosInstance from '../../../Utility/AxiosInstance';
-import { LuArrowLeft, LuDownload, LuSave, LuTrash2 } from 'react-icons/lu';
+import { LuArrowLeft, LuCircleAlert, LuDownload, LuSave, LuSaveAll, LuTrash2 } from 'react-icons/lu';
 import TitleInput from '../../../Components/Inputs/TitleInput';
 import StepProgress from '../../../Components/StepProgress';
 import Modal from '../../../Layouts/Modal';
@@ -12,6 +12,7 @@ import { SocketContext } from '../../../ContextApi/SocketContext';
 import DisplayQuestion from '../Components/DisplayQuestion';
 import axios from 'axios';
 import { Send, Slice, Vote } from 'lucide-react';
+import moment from 'moment';
 
 const EditAssingment = () => {
     const socket = useContext(SocketContext);
@@ -33,6 +34,10 @@ const EditAssingment = () => {
     const [DisplayAnswer, setDisplayAnswer] = useState(false)
     const [displayTyping, setdisplayTyping] = useState(false)
     const [DisableQuestionbyIndex, setDisableQuestionbyIndex] = useState(null)
+    const [tagUser, settagUser] = useState(false)
+    
+    console.log("GroupsMessage", messages);
+    
     
 
     const [DefaultInfo, setDefaultInfo] = useState({
@@ -64,7 +69,7 @@ const EditAssingment = () => {
         })
 
     const [PartialSubmission, setPartialSubmission] = useState({
-
+        _id: "",
         Questions: [
             {
                 type : "",
@@ -87,7 +92,8 @@ const EditAssingment = () => {
         status: "",
         obtainedMarks:  0 ,
         feedback: "",
-        isPassed:  false
+        isPassed:  false,
+        SubmissionVote: [],
         });
     console.log("PartialSubmission", PartialSubmission);
     
@@ -149,8 +155,11 @@ const EditAssingment = () => {
                     const PartailAssingment = result.data;
                     setPartialSubmission((prev)=>({
                         ...prev,
+                        _id : PartailAssingment._id || PartialSubmission._id,
+                        status : PartailAssingment.status || PartialSubmission.status,
                         Questions: PartailAssingment.Questions || PartialSubmission.Questions,
                         Students: PartailAssingment.Students || PartialSubmission.Students, 
+                        SubmissionVote: PartailAssingment.SubmissionVote || PartialSubmission.SubmissionVote, 
 
                     }))
                     return ;
@@ -158,6 +167,9 @@ const EditAssingment = () => {
             
             setPartialSubmission((prev) => ({
                 ...prev,
+                _id : Isexist.data._id || PartialSubmission._id,
+                status : Isexist.data.status || PartialSubmission.status,
+                SubmissionVote: Isexist.data.SubmissionVote ||  Isexist.data.SubmissionVote, 
                 Questions: (Isexist.data.Questions || PartialSubmission.Questions).map(q => ({
                     ...q,
                     vote: q.vote || ""  
@@ -181,14 +193,6 @@ const EditAssingment = () => {
     useEffect(()=>{
         FetchAssingment();
     }, [])
-
-
- 
-
-
-
-
-
 
 useEffect(() => {
     socket.emit("joinGroup", { assignmentId: AssingmentId, User: User });
@@ -275,6 +279,12 @@ useEffect(() => {
         })
     })
 
+    socket.on("UpdateSubmissionVote", (User)=>{
+        setPartialSubmission((prev)=>({
+            ...prev,
+            SubmissionVote : [...prev.SubmissionVote , User._id]
+        }))
+    })
 
     socket.on("userJoined", handleUserJoined);
     socket.on("receiveMessage", handleReceiveMessage);
@@ -299,17 +309,19 @@ useEffect(() => {
                 ...update[currentIndex],
                 answer: "",
                 isLocked: false,
-                lockedby: "",
+                lockedby: null,
                 vote: []
             };
-            return {
+            const UpdateSubmission =  {
                 ...prev,
                 Questions: update
             };
+            socket.emit("Reset", SocketGroup, currentIndex, AssingmentId, UpdateSubmission);
+        
+            return UpdateSubmission
         });
 
-        setvoteCount(0);
-        socket.emit("Answering", null, SocketGroup, currentIndex, "", false);
+        
     }
 }, [voteCount, currentIndex, PartialSubmission?.Students?.length]);
 
@@ -321,6 +333,16 @@ useEffect(() => {
 }, [PartialSubmission , currentIndex])
 console.log("voteCount", voteCount);
 
+
+useEffect(() => {
+    if (!errorMsg) return; 
+
+    const timeout = setTimeout(() => {
+    seterrorMsg("");
+    }, 5000);
+
+    return () => clearTimeout(timeout); 
+}, [errorMsg]);
 
 
 const handleSubmit = (e)=>{
@@ -337,26 +359,27 @@ const handleSubmit = (e)=>{
     socket.emit("TypingFinish", SocketGroup,User , false)
 }
 
-const HandleSave = ()=>{
-    setPartialSubmission((prev)=>{
+const HandleSave = () => {
+    setPartialSubmission((prev) => {
         const updateArray = [...prev.Questions];
 
-        updateArray[currentIndex] ={
+        updateArray[currentIndex] = {
             ...updateArray[currentIndex],
-            isLocked : true,
-            lockedby : User
-        }
-        return (
-            {
-                ...prev ,
-                Questions : updateArray
-            }
-        )
-    })
+            isLocked: true,
+            lockedby: User,
+        };
 
-    socket.emit("Save", SocketGroup, User , currentIndex )
+        const updatedSubmission = {
+            ...prev,
+            Questions: updateArray,
+        };
 
-}
+        socket.emit("Save", SocketGroup, User, currentIndex, AssingmentId, updatedSubmission);
+
+        return updatedSubmission;
+    });
+};
+
 
 const NextQuestion = ()=>{
     
@@ -472,6 +495,13 @@ const handletext =(e)=>{
     socket.emit("Typing", SocketGroup,User, true)
    
 }
+
+useEffect(() => {
+  if( text.trim() == "@")
+    return settagUser(true)
+  settagUser(false)
+}, [text]);
+
 const handleBlur = () => {
   socket.emit("Typing", SocketGroup, User, false);
 };
@@ -487,18 +517,39 @@ const MangeVotes = ()=>{
         const updateArray = [...prev.Questions]
 
         updateArray[currentIndex].vote  = [...updateArray[currentIndex].vote , User._id]
-        return (
-            {
+
+        const Updatesubmission =   {
                 ...prev,
                 Questions : updateArray
             }
-        )
+
+        socket.emit("Votes",SocketGroup, User , currentIndex , AssingmentId , Updatesubmission )
+        return Updatesubmission
     })
-    socket.emit("Votes",SocketGroup, User , currentIndex )
 }
 
 const VerifyVote = ()=>{
     const isexit = PartialSubmission.Questions[currentIndex].vote.includes(User._id);
+    return isexit
+}
+
+const ManageSubmission = ()=>{
+    const AnswerAll = PartialSubmission.Questions.every((item)=>item.answer.trim() != "")
+    if (AnswerAll == false)
+        return seterrorMsg("All Questions Should be Answered")
+        setPartialSubmission((prev)=>{
+            const updateArray = {
+                ...prev ,
+                SubmissionVote : [...prev.SubmissionVote , User._id]
+            }
+        socket.emit("SubmissionVote", SocketGroup , User, AssingmentId, updateArray)
+        return updateArray 
+    })
+    
+
+}   
+const VerifySubmission =()=>{
+    const isexit = PartialSubmission.SubmissionVote.includes(User._id);
     return isexit
 }
 
@@ -575,54 +626,102 @@ const VerifyVote = ()=>{
                         )}
                     </div>
                 </div>
-                
-                
-                {errorMsg && (
-                <div className=" flex items-center text-[11px] gap-2 font-medium  justify-center text-amber-600 bg-amber-100 py-0.5 px-2 my-1 rounded ">
-                    <LuCircleAlert className="text-md" />
-
-                    {errorMsg}
-                </div>
-                )}
-
+        
                 
                 <div className="absolute bottom-0  w-full">
-                    <div className='flex px-5 py-3 gap-3 items-center justify-end'>
-                        <button
-                        onClick={handleBack}
-                        disabled={currentIndex === 0}
-                        className={`btn-small-light ${currentIndex === 0 ? "cursor-none opacity-50" : ""}`}
-                        >
-                        <LuArrowLeft className="text-[16px]" />
-                        Back
-                        </button>
+                    <div className={`${errorMsg ? "flex items-center justify-between w-full":"" }`}>
+                        {
+                            errorMsg && (
+                                <div className="w-full ml-3 h-fit flex items-center text-[11px] gap-2 font-medium  justify-center text-amber-600 bg-amber-100 py-0.5 px-2 my-1 rounded ">
+                                <LuCircleAlert className="text-md" />
+                                {errorMsg}
+                            </div>
+                            )
+                        }
+                        <div className='flex px-5 py-3 gap-3 items-center justify-end'>
+                            <button
+                                onClick={handleBack}
+                                disabled={currentIndex === 0}
+                                className={`btn-small-light ${currentIndex === 0 ? "cursor-none opacity-50" : ""}`}
+                                >
+                                <LuArrowLeft className="text-[16px]" />
+                                Back
+                            </button>
 
-                        <button
-                        onClick={handleNext}
-                        disabled={currentIndex === DefaultInfo.questions.length - 1}
-                        className="btn-small flex items-center gap-2"
-                        >
-                        <LuArrowLeft className="text-[16px] rotate-180" />
-                        Next
-                        </button>
+                            <div>
+                                {
+                                    currentIndex === DefaultInfo.questions.length - 1
+                                    ?(
+                                        <>
+                                            <button
+                                            className="btn-small flex items-center gap-2"
+                                            onClick={ManageSubmission}
+                                            disabled={VerifySubmission()}
+                                            >   
+                                                <LuSaveAll className="text-[16px] rotate-180"/>
+                                                Submit
+                                                <div className='flex text-sm font-medium '>
+                                                    <p>{PartialSubmission.SubmissionVote.length}</p>/
+                                                    <p>{PartialSubmission.Students.length}</p>
+                                                </div>
+                                            </button>
+                                        </>
+                                        
+                                    )
+                                    :(
+                                        <>
+                                            <button
+                                            className="btn-small flex items-center gap-2"
+                                            onClick={handleNext}
+                                            disabled={currentIndex === DefaultInfo.questions.length - 1}
+                                            
+                                            >   
+                                            <LuArrowLeft className="text-[16px] rotate-180" />
+                                            Next
+                                            </button>
+                                        </>
+                                    )
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-
             </div>
             <div className="h-[95vh] w-full bg-gray-100 rounded-lg shadow flex flex-col">
-                <div className="flex-1 overflow-y-auto p-3 bg-white">
+                <div className="flex-1 overflow-y-auto py-3 px-5 bg-white text-sm ">
                     {messages.map((item, index) => (
-                    <div
-                        key={index}
-                        className={`mb-2 max-w-xs px-3 py-2 rounded-lg ${
-                        item.User === User._id
-                            ? "ml-auto bg-purple-200 text-right"
-                            : "mr-auto bg-gray-200 text-left"
-                        }`}
-                    >
-                        {item.message}
-                    </div>
+                    <>
+                        
+                        <div
+                            key={index}
+                            className={`relative mb-2 mt-3 max-w-xs px-3 py-2 rounded-lg flex justify-between gap-3 ${
+                            item.User === User._id
+                                ? "ml-auto bg-purple-100 text-left "
+                                : "mr-auto bg-gray-200 text-left"
+                            }`}
+                        >   
+                            {
+                                item.User != User._id && (
+                                    <div className='bg-white rounded-full size-10 px-3 flex items-center justify-center'>
+                                        <p className='text-center'>{User.name.slice(0,2)}</p>
+                                    </div>
+                                )
+                            }
+                           <div className='flex flex-col w-full gap-1'>
+                             <div className='bg-white w-full px-3 py-2 rounded-md overflow-hidden'>
+                                <div className={`size-4 absolute  transform rotate-45 rounded border-t-[16px] border-white border-t-white border-r-[16px]  border-r-transparent ${item.User === User._id ? "-top-2 -right-2 bg-purple-100 ":"-top-2 -left-2 bg-gray-200"}`}>
+                                </div>
+                                <p className='break-words'>
+                                    {item.message}
+                                </p>                            
+                            </div>
+                            <p className='text-xs text-gray-900 text-right italic'>{moment(item.timestamp).fromNow()}</p>
+                           </div>
+
+                            
+                           
+                        </div>
+                    </>
                     ))}
                     {displayTyping && (
                         <div className="text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md w-max">
@@ -644,6 +743,22 @@ const VerifyVote = ()=>{
                     onBlur={handleBlur}
                     placeholder="Type a message..."
                     />
+                    {
+                        tagUser && (
+                            <div className='absolute -top-32 w-[63vh] h-32 border overflow-y-scroll rounded px-2 space-y-2 py-4 '>
+                                {
+                                    PartialSubmission.Students.map((item)=>(
+                                        <div className='bg-purple-100 text-md border px-3 py-2 rounded flex items-center gap-2 hover:bg-purple-200' onClick={()=>{settext(item.name) ,settagUser(false)}}>
+                                            <div className='bg-white rounded-full size-7 p-4 flex items-center justify-center'>
+                                                <p className='text-center'>{item.name.slice(0,2)}</p>
+                                            </div>
+                                            <div className=''>{item.name}</div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        )
+                    }
                     <button
                     type="submit"
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md text-purple-800"
@@ -651,7 +766,7 @@ const VerifyVote = ()=>{
                     <Send className="w-5 h-5" />
                     </button>
                 </form>
-                </div>
+            </div>
 
         </div>
         <Modal
