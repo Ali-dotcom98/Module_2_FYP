@@ -85,13 +85,46 @@ io.on("connection", (socket) => {
         socket.to(SocketGroup).emit("Answering", User, currentIndex, answer, Flag)
     })
 
-    socket.on("Save", (SocketGroup, User, currentIndex) => {
+    socket.on("Save", async (SocketGroup, User, currentIndex, AssingmentId, PartialSubmission) => {
+        console.log("AssingmentId", AssingmentId);
+        console.log("PartialSubmission", PartialSubmission);
         socket.to(SocketGroup).emit("SaveBy", User, currentIndex)
+        const SubmitAssingment = await PartialSubmission_Model.findOne({ assignmentId: AssingmentId, _id: PartialSubmission._id })
+        console.log("SubmitAssingment", SubmitAssingment);
+
+        Object.assign(SubmitAssingment, PartialSubmission);
+        SubmitAssingment.save();
     })
 
-    socket.on("Votes", (SocketGroup, User, currentIndex) => {
-        socket.to(SocketGroup).emit("UpdateVotes", User, currentIndex)
+    socket.on("Reset", async (SocketGroup, currentIndex, AssingmentId, UpdateSubmission) => {
+        socket.to(SocketGroup).emit("Answering", null, currentIndex, "", false)
+        const updated = await PartialSubmission_Model.findOneAndUpdate(
+            { assignmentId: AssingmentId, _id: UpdateSubmission._id },
+            { $set: { Questions: UpdateSubmission.Questions } },
+            { new: true }
+        );
 
+    })
+
+
+    socket.on("Votes", async (SocketGroup, User, currentIndex, AssingmentId, UpdateSubmission) => {
+        socket.to(SocketGroup).emit("UpdateVotes", User, currentIndex)
+        const update = await PartialSubmission_Model.findOneAndUpdate(
+            { assignmentId: AssingmentId, _id: UpdateSubmission._id },
+            { $set: { Questions: UpdateSubmission.Questions } },
+            { new: true }
+        )
+    })
+
+    socket.on("SubmissionVote", async (SocketGroup, User, AssingmentId, UpdateSubmission) => {
+
+        socket.to(SocketGroup).emit("UpdateSubmissionVote", User)
+
+        await PartialSubmission_Model.findOneAndUpdate(
+            { assignmentId: AssingmentId, _id: UpdateSubmission._id },
+            { $set: { SubmissionVote: UpdateSubmission.SubmissionVote } },
+            { new: true }
+        )
     })
 
 
@@ -118,6 +151,7 @@ const User_Model = require("./Models/User_Model.js");
 const PartialSubmission = require("./Router/PartialSubmission_Route.js");
 const Assingment_Model = require("./Models/Assingment_Model.js");
 const { log } = require("console");
+const PartialSubmission_Model = require("./Models/PartialSubmission_Model.js");
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
