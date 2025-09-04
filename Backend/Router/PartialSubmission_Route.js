@@ -13,6 +13,7 @@ route.post("/Create", Protect, async (req, res) => {
             assignmentId: AssingmentId,
             "Students._id": req.user._id,
             feedback: "",
+            SubmissionVote: null,
 
         });
 
@@ -39,13 +40,31 @@ route.get("/Save/:id", Protect, async (req, res) => {
         const result = await PartialSubmission_Model.findOne({
             assignmentId: id,
             Students: { $elemMatch: { _id: req.user._id } }
-        });
+        }).populate("Questions.lockedby");
         res.status(200).json(result);
     } catch (error) {
         console.error("Error in /Partial/Save:", error);
         res.status(500).json({ message: error.message });
     }
 });
+
+
+route.put("/Update/:id", Protect, async (req, res) => {
+    try {
+        const Data = req.body;
+        const result = await PartialSubmission_Model.find({
+            assignmentId: req.params.id,
+            _id: Data._id
+        })
+        console.log(result);
+
+        res.send(result)
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+
+})
 
 
 
