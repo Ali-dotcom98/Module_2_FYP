@@ -18,6 +18,8 @@ export const API_PATH = {
     {
         CREATE: "/Partial/Create",
         SAVE: (ID) => `/Partial/Save/${ID}`,
-        UPDATE: (ID) => `/Partial/Update/${ID}`
+        UPDATE: (ID) => `/Partial/Update/${ID}`,
+        GET_SUBMIT: "/Partial/SubmitAssingments",
+        GET_STUDENTS_SUBMISSION: (ID) => `/Partial/SubmitAssingment/${ID}`,
     }
 }

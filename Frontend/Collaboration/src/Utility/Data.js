@@ -29,9 +29,9 @@ export const SIDE_MENU_DATA = [
     },
     {
         id: "03",
-        label: "Check",
+        label: "Evaluation",
         icon: LucideBarChart2,
-        path: "/Instructor/Leaderboard",
+        path: "/Instructor/Evaluation",
     },
 
     {
