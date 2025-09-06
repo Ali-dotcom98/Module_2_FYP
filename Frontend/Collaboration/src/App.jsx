@@ -9,6 +9,10 @@ import DefaultLayout from "./Layouts/Default/Default"
 import CreateAssingment from './Pages/Instructors/CreateAssingment';
 import EditAssingments from './Pages/Instructors/EditAssingments';
 import EditAssingment from './Pages/Students/EditAssingment/EditAssingment';
+import MyPerformance from './Pages/Students/MyPerformance/MyPerformance';
+import Evaluation from "./Pages/Instructors/AssingmentEvaluation/SubmittedAssingments"
+import StudentsAssingments from './Pages/Instructors/AssingmentEvaluation/StudentsAssingments';
+import EvaluationPage from './Pages/Instructors/AssingmentEvaluation/EvaluationPage';
 const App = () => {
   return (
     <UserProvider>
@@ -25,6 +29,9 @@ const App = () => {
               <Route index element={<Navigate to="Dashboard" />} />
               <Route path='Dashboard' element={<Dashboard_Instructor/>} />
               <Route path='CreateAssingment' element={<CreateAssingment/>} />
+              <Route path='Evaluation' element={<Evaluation/>} />
+              <Route path='Evaluation/:id' element={<StudentsAssingments/>} />
+
               
             </Route>
 
@@ -34,13 +41,20 @@ const App = () => {
               </ProtectRoutes>}
             ></Route>
 
+            <Route path="/EvaluationPanel/:AssingmentId"
+              element= {<ProtectRoutes status = {["Instructor"]}>
+                <EvaluationPage/>
+              </ProtectRoutes>}
+            ></Route>
+
 
             <Route path="/Student"
               element= {<ProtectRoutes status = {["Student"]}>
                 <DefaultLayout/>
               </ProtectRoutes>}
             >
-              <Route path='' element={<Dashboard_Student/>} />
+              <Route path='Dashboard' element={<Dashboard_Student/>} />
+              <Route path='Performance' element={<MyPerformance/>} />
               
             </Route>
 

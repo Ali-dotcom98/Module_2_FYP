@@ -36,7 +36,6 @@ const EditAssingment = () => {
     const [DisableQuestionbyIndex, setDisableQuestionbyIndex] = useState(null)
     const [tagUser, settagUser] = useState(false)
     
-    console.log("GroupsMessage", messages);
     
     
 
@@ -147,7 +146,6 @@ const EditAssingment = () => {
             group.some(student => student._id.toString() === User._id)
             );
             const Isexist = await AxiosInstance.get(API_PATH.PARTIAL.SAVE(AssingmentId));
-            console.log("Isexist",Isexist.data);
             
             if (!Isexist.data || Isexist.data.length === 0)
                 {
@@ -224,7 +222,7 @@ useEffect(() => {
         }));
 });
 
-    socket.on("Answering", (User , CurrentQuestion ,answer,  Flag)=>{
+    socket.on("Answering", (User , CurrentQuestion ,answer,  Flag )=>{
         setDisplayAnswer(Flag)
         setWhoIsAnswering(User)
         setDisableQuestionbyIndex(CurrentQuestion)
@@ -239,6 +237,7 @@ useEffect(() => {
                 {
                     ...prev , 
                     Questions: updateArray,
+                    SubmissionVote : []
                 }
             )
         })
@@ -279,10 +278,22 @@ useEffect(() => {
         })
     })
 
-    socket.on("UpdateSubmissionVote", (User)=>{
+    socket.on("UpdateSubmissionVote", (User , Redirect)=>{
+        if(Redirect)
+        {
+            navigator("/Student")
+        }
         setPartialSubmission((prev)=>({
             ...prev,
             SubmissionVote : [...prev.SubmissionVote , User._id]
+        }))
+    })
+
+    socket.on("ResetVotesArray", ()=>{
+    
+        setPartialSubmission((prev)=>({
+            ...prev,
+            SubmissionVote : []
         }))
     })
 
@@ -295,6 +306,10 @@ useEffect(() => {
         socket.off("updateOnlineStatus")
         socket.off("Answering")
         socket.off("SaveBy")
+        socket.off("UpdateVotes")
+        socket.off("UpdateSubmissionVote")
+        socket.off("ResetVotesArray")
+
         
     };
     }, [AssingmentId, User]);
@@ -316,7 +331,7 @@ useEffect(() => {
                 ...prev,
                 Questions: update
             };
-            socket.emit("Reset", SocketGroup, currentIndex, AssingmentId, UpdateSubmission);
+            socket.emit("ResetVotes", SocketGroup);
         
             return UpdateSubmission
         });
@@ -331,8 +346,21 @@ useEffect(() => {
         setvoteCount(PartialSubmission.Questions[currentIndex]?.vote?.length)
     }
 }, [PartialSubmission , currentIndex])
-console.log("voteCount", voteCount);
 
+useEffect(()=>{
+    const answers = PartialSubmission.Questions.every((item)=> item.answer.trim() != "")
+    if(answers)
+    {
+        const isSubmissionVoteExist = PartialSubmission.SubmissionVote.length;
+        console.log(isSubmissionVoteExist);
+        if(isSubmissionVoteExist > 0)
+        {
+            socket.emit("Reset", SocketGroup, currentIndex, AssingmentId, UpdateSubmission);
+        }
+        
+    }
+    
+},[])
 
 useEffect(() => {
     if (!errorMsg) return; 
@@ -661,7 +689,7 @@ const VerifySubmission =()=>{
                                                 <LuSaveAll className="text-[16px] rotate-180"/>
                                                 Submit
                                                 <div className='flex text-sm font-medium '>
-                                                    <p>{PartialSubmission.SubmissionVote.length}</p>/
+                                                    <p>{(PartialSubmission.SubmissionVote.length)}</p>/
                                                     <p>{PartialSubmission.Students.length}</p>
                                                 </div>
                                             </button>
