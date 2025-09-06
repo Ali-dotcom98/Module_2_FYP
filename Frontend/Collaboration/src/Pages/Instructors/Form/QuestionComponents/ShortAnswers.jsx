@@ -7,8 +7,8 @@ import Model from "../../../../Layouts/Modal"
 const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateArrayItem, type , WhoIsAnswering  , DisplayAnswer, DisableQuestionbyIndex  , HandleSave}) => {
     const {User} = useContext(UserContext);
     const [ConfirmSave, setConfirmSave] = useState(false)
-    console.log("WhoIsAnswering",WhoIsAnswering);
-    console.log("item",item);
+    // console.log("WhoIsAnswering",WhoIsAnswering);
+    // console.log("item",item);
     
     
   return (

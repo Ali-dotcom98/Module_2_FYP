@@ -40,6 +40,7 @@ const navigate = useNavigate();
             </div>
             {AllChallenge?.map((Challenge) => (
             <AssinmentCard
+                tag= {"Edit"}
                 key={Challenge?._id}
                 imgurl={Challenge?.thumbnailLink || null}
                 title={Challenge?.title || "Untitled Resume"}
@@ -48,7 +49,7 @@ const navigate = useNavigate();
                     ? moment(Challenge.updatedAt).format("Do MMM YYYY")
                     : "Unknown"
                 }
-                onSelect={() => navigate(`/EditAssingments/${Challenge._id}` )}
+                onselect={() => navigate(`/EditAssingments/${Challenge._id}` )}
             />
             ))}
         </div>
