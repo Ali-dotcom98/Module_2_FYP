@@ -117,14 +117,37 @@ io.on("connection", (socket) => {
     })
 
     socket.on("SubmissionVote", async (SocketGroup, User, AssingmentId, UpdateSubmission) => {
+        console.log("UpdateSubmission.SubmissionVote", UpdateSubmission.SubmissionVote);
+        console.log((UpdateSubmission.SubmissionVote).length)
 
-        socket.to(SocketGroup).emit("UpdateSubmissionVote", User)
+        if ((UpdateSubmission.SubmissionVote).length >= 2) {
+            socket.to(SocketGroup).emit("UpdateSubmissionVote", User, true)
+            socket.emit("UpdateSubmissionVote", User, true)
+            await PartialSubmission_Model.findOneAndUpdate(
+                { assignmentId: AssingmentId, _id: UpdateSubmission._id },
+                {
+                    $set: {
+                        SubmissionVote: UpdateSubmission.SubmissionVote,
+                        status: "submitted"
+                    }
+                },
+                { new: true }
+            )
+        }
+        else {
+            socket.to(SocketGroup).emit("UpdateSubmissionVote", User, false)
+            socket.emit("UpdateSubmissionVote", User, false)
+            await PartialSubmission_Model.findOneAndUpdate(
+                { assignmentId: AssingmentId, _id: UpdateSubmission._id },
+                { $set: { SubmissionVote: UpdateSubmission.SubmissionVote } },
+                { new: true }
+            )
+        }
+    })
 
-        await PartialSubmission_Model.findOneAndUpdate(
-            { assignmentId: AssingmentId, _id: UpdateSubmission._id },
-            { $set: { SubmissionVote: UpdateSubmission.SubmissionVote } },
-            { new: true }
-        )
+    socket.on("ResetVotes", (SocketGroup) => {
+        socket.to(SocketGroup).emit("ResetVotesArray")
+        socket.emit("ResetVotesArray")
     })
 
 
