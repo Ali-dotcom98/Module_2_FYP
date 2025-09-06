@@ -1,13 +1,27 @@
 import React, { useEffect, useState } from 'react'
 
-const AssinmentCard = ({ imgurl, title, lastUpdated, onSelect, DeletedArray , ID }) => {  
+const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray , ID , tag}) => {  
     
     return(
         <div
-            className={`${DeletedArray ? DeletedArray?.includes(ID)?"border border-purple-600 ":"" : ""} h-[300px] flex flex-col items-center justify-between bg-white rounded-lg border border-gray-200  cursor-pointer hover:border-purple-600 overflow-hidden transition`}
+            className={`${DeletedArray ? DeletedArray?.includes(ID)?"border border-purple-600 ":"" : ""} h-[300px] flex flex-col items-center justify-between bg-white rounded-lg border border-gray-200  relative cursor-pointer hover:border-purple-600 overflow-hidden transition`}
             style={{backgroundColor: "#F5F4FF"}}
-            onClick={onSelect}
+
+            onClick={tag == "Edit" ? onselect :()=>onselect(ID) }
             >
+                {
+                tag=="Performance"  && (
+                <p className='absolute bg-yellow-300 text-yellow-600 top-5 -right-9 rotate-45 min-w-36 text-center text-sm py-1 font-medium'>Submitted</p>
+
+                )
+            }
+             {
+                tag == "Evaluation" && (
+                <p className='absolute bg-yellow-300 text-yellow-600 top-5 -right-9 rotate-45 min-w-36 text-center text-sm py-1 font-medium'>Closed</p>
+
+                )
+            }
+
             <div className="p-4">
                 {imgurl ? (
                 <img
