@@ -87,5 +87,34 @@ route.get("/Info", Protect, async (req, res) => {
 });
 
 
+route.get("/SubmitAssingments", async (req, res) => {
+    try {
+        const result = await PartialSubmission_Model.find({ status: "submitted" }).populate("assignmentId");
+        if (!result || result.length === 0) {
+            return res.status(404).json({ message: "No submission found" });
+        }
+
+        const JustAssingments = result.map((item) => item.assignmentId)
+        res.status(200).json(JustAssingments);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+})
+
+route.get("/SubmitAssingment/:id", async (req, res) => {
+    try {
+        const result = await PartialSubmission_Model.find({ assignmentId: req.params.id });
+        if (!result || result.length === 0) {
+            return res.status(404).json({ message: "No submission found" });
+        }
+        res.status(200).json(result);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+})
+
+
 
 module.exports = route;
