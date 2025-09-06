@@ -4,7 +4,7 @@ const partialSubmissionSchema = new mongoose.Schema({
     assignmentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Assignment",
-        required: true,
+        default: null
     },
     Questions: [
         {
@@ -32,6 +32,15 @@ const partialSubmissionSchema = new mongoose.Schema({
                     ref: "User"
                 }
             ]
+            ,
+            obtainedMarks: {
+                type: String,
+                default: 0
+            },
+            suggestion: {
+                type: String,
+                default: null
+            }
         }
     ],
 
