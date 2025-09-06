@@ -1,7 +1,8 @@
 const express = require("express");
 const { Protect } = require("../Middleware/TokenMiddleware");
 const Assingment_Model = require("../Models/Assingment_Model");
-const User_Model = require("../Models/User_Model")
+const User_Model = require("../Models/User_Model");
+const PartialSubmission_Model = require("../Models/PartialSubmission_Model");
 const route = express.Router();
 
 route.post("/Create", Protect, async (req, res) => {
@@ -107,28 +108,62 @@ route.get("/Students", Protect, async (req, res) => {
 
 })
 
-// GET single assignment where a specific student is enrolled
 route.get("/student", Protect, async (req, res) => {
     try {
-        console.log(req.user._id);
 
-        const assignment = await Assingment_Model.find({
+        const assignments = await Assingment_Model.find({
             "settings.groupSettings.groupsDetail": {
                 $elemMatch: {
                     $elemMatch: { _id: req.user._id }
                 }
-            }
+            },
+            "settings.visibility": "public"
         });
 
-        if (!assignment) {
-            return res.status(404).json({ message: "Assignment not found for this student" });
+
+        if (!assignments || assignments.length === 0) {
+            return res.status(404).json({ message: "No assignments found for this student" });
         }
 
-        res.json(assignment);
+        const assignmentIds = assignments.map(a => a._id.toString());
+
+        // 1. Find submissions with status = submitted
+        const submittedSubmissions = await PartialSubmission_Model.find({
+            assignmentId: { $in: assignmentIds },
+            Students: { $elemMatch: { _id: req.user._id } },
+            status: "submitted"
+        });
+
+        const submittedIds = submittedSubmissions.map(ps => ps.assignmentId.toString());
+
+
+        const validAssignmentIds = assignmentIds.filter((id) => !submittedIds.includes(id));
+
+
+        const partialSubmissions = await PartialSubmission_Model.find({
+            assignmentId: { $in: validAssignmentIds },
+            Students: { $elemMatch: { _id: req.user._id } },
+            status: { $ne: "submitted" }
+        });
+
+        const result = validAssignmentIds.map(id => {
+            const assignment = assignments.find(a => a._id.toString() === id);
+            const partial = partialSubmissions.find(ps => ps.assignmentId.toString() === id);
+
+            return {
+                assignment,
+                partial
+            };
+        });
+        const DisplayAssingment = result.map((item) => item.assignment)
+        res.json(DisplayAssingment);
+
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 
 
