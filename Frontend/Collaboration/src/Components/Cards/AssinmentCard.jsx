@@ -1,6 +1,8 @@
+import { Edit } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 
 const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray , ID , tag}) => {  
+    console.log(tag);
     
     return(
         <div
@@ -35,7 +37,10 @@ const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray , ID
             </div>
             <div className='w-full bg-white px-4 py-3'>
                 <h3 className="text-sm font-medium truncate overflow-hidden whitespace-nowrap">{title}</h3>
-                <p className="text-xs font-medium text-gray-500 mt-0.5">Last updated: {lastUpdated}</p>
+                {
+                    tag && <p className="text-xs font-medium text-gray-500 mt-0.5">Due Date :  {lastUpdated}</p>
+
+                }
             </div>
         </div>
     )
