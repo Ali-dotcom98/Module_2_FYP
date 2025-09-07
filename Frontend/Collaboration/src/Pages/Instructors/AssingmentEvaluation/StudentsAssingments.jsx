@@ -16,7 +16,7 @@ const StudentsAssingments = () => {
     const {id} = useParams();
         const handleFetchSubmision = async()=>{
             try {
-                const response = await AxiosInstance.get(API_PATH.PARTIAL.GET_STUDENTS_SUBMISSION(id));
+                const response = await AxiosInstance.get(API_PATH.PARTIAL.GET_ASSINGMENT_SUBMISSION(id));
                 console.log(response.data);
                 
                 if(response.data)
@@ -64,7 +64,10 @@ const StudentsAssingments = () => {
                                     ? moment(item?.updatedAt).format("Do MMM YYYY")
                                     : "Unknown"
                                 }
-                                onselect = {()=> Navigator(`/EvaluationPanel/${item?._id}`)}
+                                onselect = {()=> 
+                                    Navigator(`/EvaluationPanel/${item?._id}`,
+                                        { state : { AssingmentTitle  : Assingment?.title }} 
+                                )}
                             />
                         )
                     })

@@ -19,7 +19,7 @@ const CreateAssinmentForm = () => {
     seterror("")
     const response = await AxiosInstance.post(API_PATH.ASSIGN.CREATE, { title: Title })
     if (response.data?._id) {
-      navigate(`/Instructor/`);
+      navigate(`/EditAssingments/${response.data?._id}`);
     }
   }
 

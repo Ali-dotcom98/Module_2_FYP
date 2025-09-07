@@ -60,9 +60,10 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
   if (
     source.droppableId === destination.droppableId &&
     source.index === destination.index
-  ) return;
+  )
+    return;
 
-  let updatedGroups = [...groupsDetails];
+  let updatedGroups = [...groupsDetails]; // now groupsDetails is array of arrays
   let updatedPool = [...studentPool];
   let movedStudent;
 
@@ -71,38 +72,41 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
     movedStudent = updatedPool[source.index];
     updatedPool.splice(source.index, 1);
   } else {
-    movedStudent = updatedGroups[parseInt(source.droppableId)].students[source.index];
-    updatedGroups[parseInt(source.droppableId)].students.splice(source.index, 1);
+    const sourceGroupIndex = parseInt(source.droppableId, 10);
+    movedStudent = updatedGroups[sourceGroupIndex][source.index];
+    updatedGroups[sourceGroupIndex].splice(source.index, 1);
   }
 
-  // Restriction logic
-  // Restriction logic
-if (destination.droppableId !== "studentPool" && studentPerGroup > 0) {
-  const destGroup = updatedGroups[parseInt(destination.droppableId)];
+  // Restriction logic (max students per group)
+  if (destination.droppableId !== "studentPool" && studentPerGroup > 0) {
+    const destGroupIndex = parseInt(destination.droppableId, 10);
+    const destGroup = updatedGroups[destGroupIndex];
 
-  console.log("Checking group capacity", {
-    destGroupSize: destGroup.students.length,
-    limit: studentPerGroup
-  });
+    console.log("Checking group capacity", {
+      destGroupSize: destGroup.length,
+      limit: studentPerGroup,
+    });
 
-  if (destGroup.students.length >= studentPerGroup) {
-    alert(`Group ${parseInt(destination.droppableId) + 1} already has max ${studentPerGroup} students`);
-    return;
+    if (destGroup.length >= studentPerGroup) {
+      alert(
+        `Group ${destGroupIndex + 1} already has max ${studentPerGroup} students`
+      );
+      return;
+    }
   }
-}
 
-
-
-  // Add student to destination 
+  // Add student to destination
   if (destination.droppableId === "studentPool") {
     updatedPool.splice(destination.index, 0, movedStudent);
   } else {
-    updatedGroups[parseInt(destination.droppableId)].students.splice(destination.index, 0, movedStudent);
+    const destGroupIndex = parseInt(destination.droppableId, 10);
+    updatedGroups[destGroupIndex].splice(destination.index, 0, movedStudent);
   }
 
   setStudentPool(updatedPool);
   setGroupsDetails(updatedGroups);
 };
+
 
 
 
@@ -157,9 +161,13 @@ useEffect(() => {
 useEffect(() => {
   if (assignmentMode === "instructor" && student.length > 0) {
     setStudentPool(student);
-    setGroupsDetails(Array.from({ length: groups }, () => ({ students: [] })));
+
+    // Always ensure groupsDetails has "groups" number of arrays
+    setGroupsDetails(Array.from({ length: groups > 0 ? groups : 1 }, () => []));
   }
 }, [assignmentMode, student, groups]);
+
+
 
 
 
@@ -299,35 +307,40 @@ useEffect(() => {
 
                   {/* Groups */}
                   <div className="flex gap-4 w-3/4 overflow-x-auto">
-                    {groupsDetails.map((group, gIndex) => (
-                      <Droppable key={gIndex} droppableId={`${gIndex}`} direction="vertical">
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                            className="border p-3 min-w-[200px]"
-                          >
-                            <h3 className="font-medium mb-2">Group {gIndex + 1}</h3>
-                            {group.students.map((st, sIndex) => (
-                              <Draggable key={st._id} draggableId={`${st._id}-${gIndex}`} index={sIndex}>
-                                {(provided) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className="border rounded px-2 py-1 mb-2 bg-green-100"
-                                  >
-                                    {st.name}
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    ))}
-                  </div>
+  {groupsDetails.map((students, groupIndex) => (
+    <Droppable droppableId={`${groupIndex}`} key={groupIndex}>
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className="border p-3 min-w-[200px] rounded bg-white"
+        >
+          <h3 className="font-medium mb-2">Group {groupIndex + 1}</h3>
+          {students.map((student, studentIndex) => (
+            <Draggable
+              draggableId={student._id}
+              index={studentIndex}
+              key={student._id}
+            >
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className="border rounded px-2 py-1 mb-2 bg-green-100"
+                >
+                  {student.name}
+                </div>
+              )}
+            </Draggable>
+          ))}
+          {provided.placeholder}
+        </div>
+      )}
+    </Droppable>
+  ))}
+</div>
+
                 </DragDropContext>
 
               )}

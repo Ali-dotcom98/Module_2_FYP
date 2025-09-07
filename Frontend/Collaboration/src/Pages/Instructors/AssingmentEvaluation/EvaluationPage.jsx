@@ -1,7 +1,7 @@
 import React, { use, useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import AxiosInstance from '../../../Utility/AxiosInstance';
-import { LuArrowLeft, LuCircleAlert, LuDownload, LuSave, LuSaveAll, LuTrash2 } from 'react-icons/lu';
+import { LuArrowLeft, LuCircleAlert, LuDownload, LuSave, LuSaveAll, LuTrash2 , LuCommand, LuMessageCircle } from 'react-icons/lu';
 
 import Modal from '../../../Layouts/Modal';
 import { API_PATH } from '../../../Utility/ApiPath';
@@ -10,17 +10,24 @@ import {UserContext} from "../../../ContextApi/UserContext"
 import axios from 'axios';
 import { Send, Slice, Vote } from 'lucide-react';
 import moment from 'moment';
+import DisplayQuestion from '../../Students/Components/DisplayQuestion';
+import { FaComment, FaCommentAlt } from 'react-icons/fa';
+import TitleInput from '../../../Components/Inputs/TitleInput';
 
 const EvaluationPage = () => {
-
+    const location = useLocation();
     const navigator = useNavigate();
-    const {AssingmentId } = useParams();
+
+    const { AssingmentTitle } = location.state || {};
+
+    const {SubmissionID } = useParams();
     const {User} = useContext(UserContext)
 
     
     const [currentIndex, setCurrentIndex] = useState(0);
     const [errorMsg, seterrorMsg] = useState("")
     const [isLoading, setisLoading] = useState(false)
+
 
     const [progress, setprogress] = useState(0)
     const [Join, setJoin] = useState("")
@@ -44,7 +51,10 @@ const EvaluationPage = () => {
                 answer : "",
                 isLocked : false,
                 lockedby : "",
-                vote : []
+                vote : [],
+                obtainedMarks: 0,
+                suggestion: "",
+                rating:""
             }
         ],
         Students: [
@@ -62,107 +72,166 @@ const EvaluationPage = () => {
         });
     console.log("PartialSubmission", PartialSubmission);
     
-    const CreatePartialSubmission   = async(questions , std)=>{
+    const FetchPartialSubmissions = async()=>{
         try {
-            const Questions = questions;
-            const userGroup = std.find(group =>
-            group.some(student => student._id.toString() === User._id)
-            );
-            const Isexist = await AxiosInstance.get(API_PATH.PARTIAL.SAVE(AssingmentId));
+            const response = await AxiosInstance.get(API_PATH.PARTIAL.GET_STUDENTS_SUBMISSION(SubmissionID));
+        
             
-            if (!Isexist.data || Isexist.data.length === 0)
+            if (response.data)
                 {
-                    const result = await AxiosInstance.post(API_PATH.PARTIAL.CREATE , {AssingmentId , Questions , userGroup  })
-                    const PartailAssingment = result.data;
+                    const PartailAssingment = response.data; 
                     setPartialSubmission((prev)=>({
                         ...prev,
-                        _id : PartailAssingment._id || PartialSubmission._id,
-                        status : PartailAssingment.status || PartialSubmission.status,
-                        Questions: PartailAssingment.Questions || PartialSubmission.Questions,
-                        Students: PartailAssingment.Students || PartialSubmission.Students, 
-                        SubmissionVote: PartailAssingment.SubmissionVote || PartialSubmission.SubmissionVote, 
-
+                        _id : PartailAssingment?._id || PartialSubmission._id,
+                        status : PartailAssingment?.status || PartialSubmission.status,
+                        Questions: PartailAssingment?.Questions || PartialSubmission.Questions,
+                        Students: PartailAssingment?.Students || PartialSubmission.Students, 
+                        SubmissionVote: PartailAssingment?.SubmissionVote || PartialSubmission.SubmissionVote, 
+                        obtainedMarks:  PartailAssingment?.obtainedMarks || PartialSubmission.obtainedMarks ,
+                        feedback: PartailAssingment?.feedback || PartialSubmission.feedback ,
+                        isPassed:  PartailAssingment?.isPassed || PartialSubmission.isPassed ,
                     }))
                     return ;
                 }
-            
-            setPartialSubmission((prev) => ({
-                ...prev,
-                _id : Isexist.data._id || PartialSubmission._id,
-                status : Isexist.data.status || PartialSubmission.status,
-                SubmissionVote: Isexist.data.SubmissionVote ||  Isexist.data.SubmissionVote, 
-                Questions: (Isexist.data.Questions || PartialSubmission.Questions).map(q => ({
-                    ...q,
-                    vote: q.vote || ""  
-                })),
-                Students: (Isexist.data.Students || PartialSubmission.Students).map(q =>({
-                    ...q ,
-                    online : q.online || false
-                }))     
-                }));
-
-            
-
-            
-
         } catch (error) {
             console.log(error);
             
         }
     }
-    return (
-    <div className=" px-5 py-4 font-urbanist flex gap-3 ">
-        <div className="hidden md:flex flex-col  items-center justify-between gap-5 bg-white rounded-lg border border-purple-200 py-3 px-4">
+
+    useEffect(()=>{
+        FetchPartialSubmissions();
+    },[])
+
+    const handleNext = ()=>{
+        if(currentIndex < PartialSubmission.Questions.length)
+        {
+            setCurrentIndex((prev)=>prev+1)
+        }
+    }
+    const handleBack = ()=>{
+        if(currentIndex > 0 )
+        {
+                setCurrentIndex((prev)=>prev-1)
+        }
+    }
+
+    
+
+    const handleSave = (currentIndex , key , val)=>{
+        setPartialSubmission((prev)=>{
+            const update = [...prev.Questions]
+            update[currentIndex]={
+                ...update[currentIndex],
+                [key] : val
+            }
+            
+            return{
+                ...prev,
+                Questions : update
+            }
+        })
+    }
+
+    const updateArrayItemInstructor = (index, key, value) => {
+    setPartialSubmission((prev) => {
+        const updateArray = [...prev.Questions];
+
+        updateArray[index] = {
+            ...updateArray[index],
+            [key]: value,
+        };
+
+        return {
+        ...prev,
+        Questions: updateArray,
+        };
+    });
+};
+
+ const gotoHome = ()=>{
+        navigator("/Instructor/CreateAssingment")
+    }
+const HandleSave = async () => {
+    try {
+        setisLoading(true);
+        await AxiosInstance.put(
+            API_PATH.PARTIAL.SAVE_BY_INSTRUCTOR(SubmissionID),
+        { PartialSubmission }
+        );
+        console.log("Saving done, navigating...");
         
-            <div className="flex flex-col items-center justify-between h-full gap-4">
+    } catch (error) {
+        console.error("Save failed:", error);
+    } finally {
+        setisLoading(false);
+    }
+};
+
+
+    return (
+    <div className="container mx-auto font-urbanist">
+        <div className="flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-100 py-3 px-4 mb-4 mt-4">
+        
+            <div className="flex items-center gap-4">
                 <button
                 className="btn-small-light"
                 // onClick={gotoHome}
                 >
                 <LuArrowLeft className="text-[16px]" />
+                <span className="hidden md:block">Home</span>
                 </button>
-                {/* <div className='flex gap-2 flex-col'>
-                    {PartialSubmission.Students.map((item, index) => (
-                        <div className='border rounded-full p-1 relative '>                    
-                            <div key={index} className='border p-2 flex items-center justify-center rounded-full peer'>{item.name.slice(0, 2)}</div>
-                            <div className={`absolute size-3  -translate-y-2 rounded-full ${item.online ? "bg-green-500": "bg-red-500"}`}></div>
-                            <div className='bg-purple-200 px-3 py-1 text-sm absolute -translate-y-10 translate-x-14 rounded-lg z-30 opacity-0 peer-hover:opacity-100'>{item.name}</div>
-                        </div>
-                    ))}
-
-                </div> */}
             </div>
             
-            
+            <div className="flex items-center gap-4">
+
+                <button
+                className="btn-small-light "
+                // onClick={() => setOpenPreviewModal(true)}
+                >
+                <LuDownload className="text-[16px]" />
+                <span className="hidden md:block ">Preview & Download</span>
+                </button>
+            </div>
         </div>
-        <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-1">
-            <div className="h-[95vh]  bg-white col-span-2 rounded-lg border border-purple-200 overflow-hidden relative">
-                {/* <div className="flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-3 px-4  my-3 mx-2">
-                    <h1>{DefaultInfo.title}</h1>
-                    <div>
-                        <p>0/{DefaultInfo.questions.length}</p>
-                    </div>
-                </div>   */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
+            <div className="h-[95vh]  bg-white col-span-3 rounded-lg border border-purple-200 overflow-hidden relative">
+                <div className="flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-3 px-4  my-3 mx-2">
+                    <h1>{AssingmentTitle}</h1>
                     
-                <div className='grid grid-rows-4 w-full  h-[90%] px-3 py-4'>
-                    {/* <div className='row-span-3'>
-                        {DefaultInfo.questions.length > 0 && (
+                </div>  
+                    
+                <div className='grid grid-rows-4 w-full  h-[90%] px-3 py-4 md:gap-2'>
+                    <div className='row-span-3'>
+                        {PartialSubmission.Questions.length > 0 && (
                             <DisplayQuestion
                                 item={PartialSubmission.Questions[currentIndex]}
                                 index = {currentIndex}
-                                updateArrayItem = {updateArrayItem}
-                                WhoIsAnswering = {WhoIsAnswering}
-                                DisplayAnswer ={DisplayAnswer}
-                                DisableQuestionbyIndex ={DisableQuestionbyIndex}
-                                HandleSave ={HandleSave}
+                                updateArrayItemInstructor = {updateArrayItemInstructor}
+                                handleSave ={handleSave}
                             />
                             )}
-                    </div> */}
+                    </div>
+                    <div className='row-span-1 -translate-y-3 '>
+                        <div className='border border-dashed rounded-md border-purple-300 flex items-center justify-between  px-3 gap-3  py-1'>
+                            <div className='flex w-full  items-center gap-2 justify-center p-1'>
+                                <label className="btn-small-light">
+                                    <LuMessageCircle className="text-[16px]" />
+                                    Suggestion
+                                    
+                                </label>
+                                <input onChange={({target})=>handleSave(currentIndex, "suggestion",target.value)} value={PartialSubmission.Questions[currentIndex]?.suggestion || ""}
+                                        placeholder='Comment here' className='placeholder:italic  placeholder:font-medium w-full text-sm text-black outline-none bg-white border border-slate-100 px-2.5 py-2.5 rounded-md mt-2 placeholder:text-gray-500 focus-within:border-purple-300' type="text"  />
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
                     
                 </div>
         
                 
-                <div className="absolute bottom-0  w-full">
+                <div className="absolute bottom-0   w-full">
                     <div className={`${errorMsg ? "flex items-center justify-between w-full":"" }`}>
                         {
                             errorMsg && (
@@ -172,59 +241,44 @@ const EvaluationPage = () => {
                             </div>
                             )
                         }
+                       
                         <div className='flex px-5 py-3 gap-3 items-center justify-end'>
                             <button
-                                // onClick={handleBack}
+                                onClick={handleBack}
                                 disabled={currentIndex === 0}
                                 className={`btn-small-light ${currentIndex === 0 ? "cursor-none opacity-50" : ""}`}
                                 >
                                 <LuArrowLeft className="text-[16px]" />
                                 Back
                             </button>
+                             <button
+                                    className="btn-small-light flex items-center gap-2 border"
+                                    onClick={HandleSave}
+                                    disabled={isLoading}
+                                >
+                                    <LuSave className="text-[16px]" />
+            
+                                    {isLoading ? "Updating..." : "Save & Exit"}
+                            </button>
 
-                            {/* <div>
-                                {
-                                    currentIndex === DefaultInfo.questions.length - 1
-                                    ?(
-                                        <>
-                                            <button
-                                            className="btn-small flex items-center gap-2"
-                                            onClick={ManageSubmission}
-                                            disabled={VerifySubmission()}
-                                            >   
-                                                <LuSaveAll className="text-[16px] rotate-180"/>
-                                                Submit
-                                                <div className='flex text-sm font-medium '>
-                                                    <p>{(PartialSubmission.SubmissionVote.length)}</p>/
-                                                    <p>{PartialSubmission.Students.length}</p>
-                                                </div>
-                                            </button>
-                                        </>
-                                        
-                                    )
-                                    :(
-                                        <>
-                                            <button
-                                            className="btn-small flex items-center gap-2"
-                                            onClick={handleNext}
-                                            disabled={currentIndex === DefaultInfo.questions.length - 1}
-                                            
-                                            >   
-                                            <LuArrowLeft className="text-[16px] rotate-180" />
-                                            Next
-                                            </button>
-                                        </>
-                                    )
-                                }
-                            </div> */}
+                            <div>
+                                <button
+    
+                                    className={`btn-small flex items-center gap-2 ${currentIndex === PartialSubmission.Questions.length - 1 ? "cursor-none opacity-50" : ""}`}
+                                    onClick={handleNext}
+                                    disabled={currentIndex === PartialSubmission.Questions.length - 1}
+                                    
+                                    >   
+                                    <LuArrowLeft className="text-[16px] rotate-180" />
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="h-[95vh] w-full bg-gray-100 rounded-lg shadow flex flex-col">
-               
+            <div className="h-[95vh] w-full col-span-2 bg-gray-100 rounded-lg shadow flex flex-col">
 
-            
             </div>
 
         </div>

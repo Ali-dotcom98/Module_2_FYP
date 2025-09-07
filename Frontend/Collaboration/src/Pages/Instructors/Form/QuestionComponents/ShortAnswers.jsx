@@ -4,11 +4,32 @@ import { useContext } from 'react'
 import {UserContext} from '../../../../ContextApi/UserContext'
 import Model from "../../../../Layouts/Modal"
 
-const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateArrayItem, type , WhoIsAnswering  , DisplayAnswer, DisableQuestionbyIndex  , HandleSave}) => {
+const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateArrayItem, type , WhoIsAnswering  , DisplayAnswer, DisableQuestionbyIndex , updateArrayItemInstructor  , HandleSave}) => {
     const {User} = useContext(UserContext);
+    console.log(index);
+    
     const [ConfirmSave, setConfirmSave] = useState(false)
     // console.log("WhoIsAnswering",WhoIsAnswering);
     // console.log("item",item);
+
+    const handleRatingChange = (value) => {
+    let marks = 0;
+
+    if (value === "Excellent") 
+        marks = item.marks;
+    else if (value === "Good") 
+        marks = Math.round(item.marks * 0.75);
+    else if (value === "Average") 
+        marks = Math.round(item.marks * 0.5);
+    else if (value === "Poor") 
+        marks = Math.round(item.marks * 0);
+
+    else marks = item.marks || 0; 
+    console.log("marks",marks);
+    
+    updateArrayItemInstructor(index, "rating", value)
+    updateArrayItemInstructor(index, "obtainedMarks", marks)
+  };
     
     
   return (
@@ -17,7 +38,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
             <div className="col-span-2 mt-3 ">
                 <div className='flex items-center justify-between'>
                     <label className="text-sm font-medium text-slate-600">
-                        Question 
+                        Question {index+1}
                     </label>
                     
                     <div className='flex items-center gap-4 font-urbanist font-semibold'>
@@ -99,7 +120,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                                 )
                             }
                             {
-                                item.isLocked && (
+                                User.status == "Student" && item.isLocked && (
                                     <p className="w-full">
                                         <div className='w-fit flex  text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md space-x-1'>
                                             <h1>Save By </h1>
@@ -111,14 +132,46 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                             }
 
                         <div className="flex items-center justify-end text-sm w-full">
-                            <button
-                                disabled={item.isLocked || WhoIsAnswering && WhoIsAnswering != User._id  && DisableQuestionbyIndex == index}
-                                onClick={() => setConfirmSave(true)}
-                                className={`btn-small-light w-fit flex items-center gap-1
-                                ${item.isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
-                            >
-                                <Save className="size-4" /> Save
-                            </button>
+                            {
+                                User.status == "Student" && (
+                                    <button
+                                        disabled={item.isLocked || WhoIsAnswering && WhoIsAnswering != User._id  && DisableQuestionbyIndex == index}
+                                        onClick={() => setConfirmSave(true)}
+                                        className={`btn-small-light w-fit flex items-center gap-1
+                                        ${item.isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    >
+                                        <Save className="size-4" /> Save
+                                    </button>
+                                )
+                            }
+                            {
+                                User.status == "Instructor" && (
+                                    <div className='w-full flex items-center justify-center gap-3'>
+                                       
+                                        <label className="btn-small-light mt-2">
+                                            Rating
+                                        </label>
+
+                                        <select
+                                            value={item.rating || ""}
+                                            onChange={(e) => handleRatingChange(e.target.value )}
+                                            className='w-full text-sm text-black outline-none bg-white border border-slate-100 px-2.5 py-2 rounded-md mt-2 placeholder:text-gray-500 focus-within:border-purple-300'
+                                        >
+                                            <option value="">Select rating</option>
+                                            <option value="Excellent">🌟 Excellent</option>
+                                            <option value="Good">👍 Good</option>
+                                            <option value="Average">👌 Average</option>
+                                            <option value="Poor">👎 Poor</option>
+
+                                        </select>
+                                         <div>
+                                            <input  value={item?.obtainedMarks }  className='bg-slate-100 outline-none rounded-md py-2 mt-2  w-16 text-center' type="number" min={0} name="" id="" />
+                                        </div>
+
+
+                                    </div>
+                                )
+                            }
                         </div>
 
                         </div>

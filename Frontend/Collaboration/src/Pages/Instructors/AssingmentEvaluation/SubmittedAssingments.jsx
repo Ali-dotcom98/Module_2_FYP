@@ -38,14 +38,16 @@ const SubmittedAssingments = () => {
                     imgurl={Assingment?.thumbnailLink || null}
                     title={Assingment?.title || "Untitled Resume"}
                     lastUpdated={
-                    Assingment?.updatedAt
-                        ? moment(Assingment.updatedAt).format("Do MMM YYYY")
+                    Assingment?.dueDate
+                        ? moment(Assingment.dueDate).format("Do MMM YYYY")
                         : "Unknown"
                     }
                      onselect={() =>
-                      Navigate(`/Instructor/Evaluation/${Assingment?._id}`, {
-                          state: { Assingment}, 
-                      })
+                      Navigate
+                      (
+                        `/Instructor/Evaluation/${Assingment?._id}`, 
+                        {state: { Assingment},}
+                    )
                   }
                 />
                 ))}
