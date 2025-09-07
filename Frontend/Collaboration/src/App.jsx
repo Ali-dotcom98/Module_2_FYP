@@ -41,7 +41,7 @@ const App = () => {
               </ProtectRoutes>}
             ></Route>
 
-            <Route path="/EvaluationPanel/:AssingmentId"
+            <Route path="/EvaluationPanel/:SubmissionID"
               element= {<ProtectRoutes status = {["Instructor"]}>
                 <EvaluationPage/>
               </ProtectRoutes>}
@@ -53,6 +53,7 @@ const App = () => {
                 <DefaultLayout/>
               </ProtectRoutes>}
             >
+              <Route index element={<Navigate to="Dashboard" />} />
               <Route path='Dashboard' element={<Dashboard_Student/>} />
               <Route path='Performance' element={<MyPerformance/>} />
               
