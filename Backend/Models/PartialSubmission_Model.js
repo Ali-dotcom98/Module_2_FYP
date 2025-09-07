@@ -40,7 +40,12 @@ const partialSubmissionSchema = new mongoose.Schema({
             suggestion: {
                 type: String,
                 default: null
+            },
+            rating: {
+                type: String,
+                default: "Nothing"
             }
+
         }
     ],
 
