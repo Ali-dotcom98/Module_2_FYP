@@ -26,6 +26,7 @@ const Dasboard = () => {
             {data?.map((Assingment) => (
             <AssinmentCard
                 key={Assingment?._id}
+                tag ="Edit"
                 imgurl={Assingment?.thumbnailLink || null}
                 title={Assingment?.title || "Untitled Resume"}
                 lastUpdated={
@@ -33,7 +34,7 @@ const Dasboard = () => {
                     ? moment(Assingment.updatedAt).format("Do MMM YYYY")
                     : "Unknown"
                 }
-                onSelect={() => navigate(`/CollaborationPannel/${Assingment._id}` )}
+                onselect={() => navigate(`/CollaborationPannel/${Assingment._id}` )}
             />
             ))}
         </div>

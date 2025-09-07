@@ -4,7 +4,7 @@ import TrueFalse from '../../Instructors/Form/QuestionComponents/TrueFalse';
 import MultipleChoice from '../../Instructors/Form/QuestionComponents/MultipleChoice ';
 import Paragraph from '../../Instructors/Form/QuestionComponents/Paragraph';
 
-const DisplayQuestion = ({item , index , updateArrayItem , WhoIsAnswering , DisplayAnswer , DisableQuestionbyIndex , HandleSave}) => {
+const DisplayQuestion = ({item , index ,updateArrayItemInstructor, updateArrayItem , WhoIsAnswering , DisplayAnswer , DisableQuestionbyIndex , HandleSave}) => {
 
     const RenderTypeOfComponents = (type , item , index)=>{
         switch (type) {
@@ -15,6 +15,7 @@ const DisplayQuestion = ({item , index , updateArrayItem , WhoIsAnswering , Disp
                         index={index}
                         type ={"Students"}
                         updateArrayItem ={updateArrayItem}
+                        updateArrayItemInstructor={updateArrayItemInstructor}
                         DisplayAnswer = {DisplayAnswer}
                         WhoIsAnswering = {WhoIsAnswering}
                         DisableQuestionbyIndex = {DisableQuestionbyIndex}
