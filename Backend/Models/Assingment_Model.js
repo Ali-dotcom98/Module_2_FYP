@@ -7,8 +7,8 @@ const QuestionSchema = new mongoose.Schema({
         default: "short_answer"
     },
     questionText: { type: String, },
-    options: [String], // for MCQs only
-    correctAnswer: mongoose.Schema.Types.Mixed, // can be boolean, string, or array
+    options: [String],
+    correctAnswer: mongoose.Schema.Types.Mixed,
     marks: { type: Number },
     answer: { type: String },
 });
@@ -17,14 +17,15 @@ const AssignmentSchema = new mongoose.Schema({
     Instructor: {
         type: String
     },
-    // Basic Info
+
     title: { type: String },
     description: { type: String },
     dueDate: { type: Date },
     totalMarks: { type: Number },
     difficulty: { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
+    thumbnail: { type: String },
 
-    // Assignment Body
+
     questions: [QuestionSchema],
     sections: [
         {
@@ -34,7 +35,7 @@ const AssignmentSchema = new mongoose.Schema({
         }
     ],
 
-    // Assignment Settings
+
     settings: {
         groupSettings: {
             numberOfGroups: { type: Number, default: 1 },
