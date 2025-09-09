@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { LuArrowLeft, LuDownload, LuSave, LuTrash2 } from 'react-icons/lu'
+import { LuArrowLeft, LuCheck, LuDownload, LuFileText, LuList, LuPen, LuSave, LuTrash2 } from 'react-icons/lu'
 import TitleInput from '../../Components/Inputs/TitleInput'
 import StepProgress from '../../Components/StepProgress'
 import Modal from '../../Layouts/Modal'
@@ -9,17 +9,20 @@ import { API_PATH } from '../../Utility/ApiPath'
 import AssignmentBasicInfoForm from './Form/AssignmentBasicInfoForm'
 import AssignmentBodyForm from './Form/AssignmentBodyForm'
 import Settings from './Form/Settings'
+import RenderFrom from './Form/RenderForm'
+import { LucideEdit, Rewind } from 'lucide-react'
+import { captureElementAsImage, dataURLtoFile, fixTailwindColors } from '../../Utility/Helper'
+import DeleteCard from '../../Components/Cards/DeleteCard'
 
 const EditAssingments = () => {
     const navigator = useNavigate();
-    const resumeRef = useRef();
-
+    const resumeRef = useRef(); 
     const {AssingmentId} = useParams();
     const [currentPage, setcurrentPage] = useState("basic-info")
     const [errorMsg, seterrorMsg] = useState("")
     const [isLoading, setisLoading] = useState(false)
     const [DeleteModel, setDeleteModel] = useState(false)
-    const [baseWidth, setBaseWidth] = useState(800);
+    const [baseWidth, setBaseWidth] = useState(600);
     const [Buffer, setBuffer] = useState(false)
     const [progress, setprogress] = useState(0)
     const [DefaultInfo, setDefaultInfo] = useState({
@@ -28,6 +31,7 @@ const EditAssingments = () => {
         dueDate : "",
         totalMarks : "",
         difficulty : "",
+        thumbnail : "",
         questions:[
             {
                 type : "",
@@ -286,26 +290,96 @@ const RenderForm = () => {
     window.scrollTo(0, 0);
     }, []);
 
+    useEffect(()=>{
+        const TotalMarks = DefaultInfo.questions.reduce((count,item)=>{
+            return count = count+ (item.marks || 0)
+        },0)
 
-    const updateChallengeDetails = async () => {
+        setDefaultInfo((prev)=>(
+            {
+                ...prev,
+                totalMarks : TotalMarks,
+            }
+        ))
+        
+    },[DefaultInfo.questions])
+
+    const upLoadAssingmentImage = async () => {
+    try {
+        console.log("Here");
+        
+        setisLoading(true);
+        fixTailwindColors(resumeRef.current);
+
+        const imageDataUrl = await captureElementAsImage(resumeRef.current);
+
+        // Convert base64 to File
+        const thumbnailFile = dataURLtoFile (
+
+            imageDataUrl,
+            `Assingment-${AssingmentId}.png`
+        );
+        
+
+        const ThumbnailForStudent = null;
+        
+        
+
+        const formData = new FormData();
+        // if (ThumbnailForStudent) formData.append("profileImage", profileImageFile);
+        if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
+
+        const uploadResponse = await AxiosInstance.put(
+            API_PATH.ASSIGN.UPLOAD_THUMBNAIL(AssingmentId),
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+
+        const { thumbnail } = uploadResponse.data;
+        console.log("thumbnailLink", thumbnail);
+        
+        
+        await updateAssingmentDetails (thumbnail)
+        gotoHome();
+
+
+    } catch (error) {
+        console.error("Error uploading images:", error);
+        
+    } finally {
+        setisLoading(false);
+    }
+};
+
+    const updateAssingmentDetails = async (thumbnail) => {
     try {
         setisLoading(true);
-       
-
         const response = await AxiosInstance.put(
             API_PATH.ASSIGN.UPDATE(AssingmentId),
             {
                 ...DefaultInfo,
+                thumbnail : thumbnail
             }
         );
-        gotoHome();
+        
        
     } catch (err) {
         console.error("Error capturing image:", err);
     } finally {
         setisLoading(false);
     }
-};
+};  
+    const HandleDelete = async()=>{
+        const result = await AxiosInstance.delete(API_PATH.ASSIGN.DELETE(AssingmentId));
+        if(result)
+        {
+            navigator("/Instructor/CreateAssingment")
+        }
+    }
 
   return (
     <div className="container mx-auto font-urbanist">
@@ -335,7 +409,7 @@ const RenderForm = () => {
 
             <button
             className="btn-small-light"
-            // onClick={()=> setDeleteModel(true)}
+            onClick={()=> setDeleteModel(true)}
             >
             <LuTrash2 className="text-[16px]" />
             <span className="hidden md:block">Delete</span>
@@ -352,11 +426,11 @@ const RenderForm = () => {
         </div>
         <div className='w-full flex flex-col md:flex-row gap-2 '>
             <div className='flex flex-col md:flex-row w-full gap-2'>
-               <div className='text-xs space-y-5 flex flex-row md:flex-col   w-full  p-2 md:w-[20vh] py-3 border border-purple-100 rounded-md md:h-[83vh] items-center justify-center md:justify-start '>
+                <div className='text-xs space-y-5 flex flex-row md:flex-col   w-full  p-2 md:w-[20vh] py-3 border border-purple-100 rounded-md md:h-[83vh] items-center justify-center md:justify-start '>
                     {/* Short Answer */}
                     <h1 className='text-sm font-medium text-center mt-3 hidden md:block'>Types</h1>
                     <button
-                        className='border w-full'
+                        className=' w-full'
                         onClick={() =>
                         AddItemInArray("questions", {
                             type: "short_answer",
@@ -367,12 +441,20 @@ const RenderForm = () => {
                         })
                         }
                     >
-                        Short Answer
+                        <div className="relative   flex items-center justify-center">
+                            <div className=' p-2 rounded-md  text-purple-800 bg-purple-600/15 border border-purple-200 hover:border-purple-400'>
+                                <LuPen className="peer text-[16px] " />
+                            <p className="absolute w-full border top-0 bg-purple-200 rounded-md px-1 py-0.5 font-medium translate-x-8 ml-2 opacity-0 peer-hover:opacity-100 transition">
+                                Short Answer
+                            </p>
+                            </div>
+                        </div>
+
                     </button>
 
                     {/* Multiple Choice Question */}
                     <button
-                        className='border w-full'
+                        className=' w-full'
                         onClick={() =>
                         AddItemInArray("questions", {
                             type: "mcq",
@@ -382,13 +464,21 @@ const RenderForm = () => {
                             answer: ""
                         })
                         }
-                    >
-                        MCQs
+                    >   
+                        <div className="relative   flex items-center justify-center">
+                            <div className=' p-2 rounded-md  text-purple-800 bg-purple-600/15 border border-purple-200 hover:border-purple-400'>
+                                <LuList className="peer text-[16px] " />
+                            <p className="absolute z-50 w-full border top-0 bg-purple-200 rounded-md px-1 py-0.5 font-medium translate-x-8 ml-2 opacity-0 peer-hover:opacity-100 transition">
+                                MCQs
+                            </p>
+                            </div>
+                        </div>
+                        
                     </button>
 
                     {/* True/False */}
                     <button
-                        className='border w-full'
+                        className=' w-full'
                         onClick={() =>
                         AddItemInArray("questions", {
                             type: "true_false",
@@ -399,12 +489,20 @@ const RenderForm = () => {
                         })
                         }
                     >
-                        True / False
+                        <div className="relative   flex items-center justify-center">
+                            <div className=' p-2 rounded-md  text-purple-800 bg-purple-600/15 border border-purple-200 hover:border-purple-400'>
+                                <LuCheck className="peer text-[16px] " />
+                            <p className="absolute w-full border top-0 bg-purple-200 rounded-md px-1 py-0.5 font-medium translate-x-8 ml-2 opacity-0 peer-hover:opacity-100 transition">
+                                True / False
+                            </p>
+                            </div>
+                        </div>
+                        
                     </button>
 
                     {/* Paragraph / Long Answer */}
                     <button
-                        className='border w-full'
+                        className=' w-full'
                         onClick={() =>
                         AddItemInArray("questions", {
                             type: "code",
@@ -415,7 +513,15 @@ const RenderForm = () => {
                         })
                         }
                     >
-                        Paragraph
+                        <div className="relative   flex items-center justify-center">
+                            <div className=' p-2 rounded-md  text-purple-800 bg-purple-600/15 border border-purple-200 hover:border-purple-400'>
+                                <LuFileText className="peer text-[16px] " />
+                            <p className="absolute w-full border top-0 bg-purple-200 rounded-md px-1 py-0.5 font-medium translate-x-8 ml-2 opacity-0 peer-hover:opacity-100 transition">
+                                Paragraph
+                            </p>
+                            </div>
+                        </div>
+                       
                     </button>
                     </div>`
                 {/* Form */}
@@ -448,7 +554,7 @@ const RenderForm = () => {
 
                     <button
                         className="btn-small-light flex items-center gap-2 border"
-                        onClick={updateChallengeDetails}
+                        onClick={upLoadAssingmentImage}
                         disabled={isLoading}
                     >
                         <LuSave className="text-[16px]" />
@@ -479,25 +585,26 @@ const RenderForm = () => {
                     </div>
                 </div>
             </div>
-            <div className='border border-red p-2  w-full'>
-                <div className="h-[100vh] bg-gray-100 rounded-lg shadow">
-                {/* <RenderFrom
-                    // data = {DefaultChlng}
-                    // containerWidth = {baseWidth}
-                /> */}
-            </div>
+            <div ref={resumeRef} className=' border border-purple-100 rounded-md  w-[47%]'>
+                <div  className="rounded-lg h-[100vh]">
+                        <RenderFrom
+                            data = {DefaultInfo}
+                            containerWidth = {baseWidth}
+                            status={"Medium"}
+                        />
+                </div>
             </div>
         </div>
         <Modal
-            // isOpen = {DeleteModel}
-            // onClose = {()=> setDeleteModel((prev)=>!prev)}
+            isOpen = {DeleteModel}
+            onClose = {()=> setDeleteModel((prev)=>!prev)}
             title={`DeleteCompetition`}
-            type={"Banner"}
+            type={"small"}
         >
-            {/* <DeleteCard 
-                // DefaultChlng = {DefaultChlng}
-                // DeleteChallenge = {DeleteChallenge}
-            /> */}
+            <DeleteCard 
+                AssingmentInfo = {DefaultInfo}
+                HandleDelete = {HandleDelete}
+            />
 
         </Modal>
     </div>

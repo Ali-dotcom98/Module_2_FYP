@@ -24,12 +24,12 @@ const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray , ID
                 )
             }
 
-            <div className="p-4">
+            <div className="p-2">
                 {imgurl ? (
                 <img
                     src={imgurl}
                     alt="Resume Thumbnail"
-                    className=" h-[210px] rounded"
+                    className=" h-[220px] rounded"
                 />
                 ) : (
                 <span className="text-gray-400">No Preview Available</span>
