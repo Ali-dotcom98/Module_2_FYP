@@ -9,10 +9,13 @@ export const API_PATH = {
     ASSIGN: {
         CREATE: "/Assign/Create",
         UPDATE: (ID) => `/Assign/Update/${ID}`,
+        UPLOAD_THUMBNAIL: (ID) => `Assign/${ID}/upload-image`,
         ASSINGMENTS: "/Assign/Assingments",
         ASSINGMENTSID: (ID) => `/Assign/Assingments/${ID}`,
         GETSTUDENTS: "/Assign/Students",
-        STUDENTASSINGMENTS: "/Assign/student"
+        STUDENTASSINGMENTS: "/Assign/student",
+        DELETE: (ID) => `/Assign/Assingments/${ID}`,
+        STATS: "/Assign/Assingments/Count/By-day",
     },
     PARTIAL:
     {
