@@ -175,6 +175,7 @@ const PartialSubmission = require("./Router/PartialSubmission_Route.js");
 const Assingment_Model = require("./Models/Assingment_Model.js");
 const { log } = require("console");
 const PartialSubmission_Model = require("./Models/PartialSubmission_Model.js");
+const path = require("path")
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
@@ -184,6 +185,13 @@ app.use("/Auth", AuthRoutes)
 app.use("/Assign", AssingmentRoutes)
 app.use("/Partial", PartialSubmission)
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'),
+    {
+        setHeaders: (res, path) => {
+            res.set("Access-Control-Allow-Origin", "http://localhost:5173")
+        }
+    }
+));
 
 app.get('/x/:id', async (req, res) => {
     try {
