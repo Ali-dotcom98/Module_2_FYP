@@ -36,14 +36,17 @@ const TrueFalse = ({ item, updateSection , index  , removeQuestion, UpdateItemIn
 
         {/* True/False Options */}
         <div className="flex gap-4 mt-3">
-          <label className="flex items-center gap-1 text-sm text-slate-600">
+          <label className={`flex items-center gap-1 text-sm `}>
             <input
               type="radio"
               name={`true_false_${item.id}`}
-              checked={item.answer === "True"}
+              checked={item.answer === "True" ? true : false}
               onChange={() => UpdateItemInArray(index,"answer", "True")}
             />
-            True
+            <div className={`font-semibold ${item.answer === "True" ? "text-purple-600":"text-slate-600"}`}>
+              True
+            </div>
+          
           </label>
 
           <label className="flex items-center gap-1 text-sm text-slate-600">
@@ -53,7 +56,10 @@ const TrueFalse = ({ item, updateSection , index  , removeQuestion, UpdateItemIn
               checked={item.answer === "False"}
               onChange={() => UpdateItemInArray(index ,"answer", "False")}
             />
-            False
+            <div className={`font-semibold ${item.answer === "False" ? "text-purple-600":"text-slate-600"}`}>
+               False
+              </div>
+           
           </label>
            <button onClick={()=>removeQuestion(index)} className='flex items-center justify-end text-sm  w-full'>
                 <div className='text-red-500'>

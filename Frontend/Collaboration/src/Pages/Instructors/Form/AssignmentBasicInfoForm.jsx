@@ -56,6 +56,7 @@ const AssignmentBasicInfoForm = ({title , description ,dueDate ,difficulty, tota
                     label="Total Marks"
                     placeholder="50"
                     type="text"
+                    disabled={true}
                     />
 
                 </div>

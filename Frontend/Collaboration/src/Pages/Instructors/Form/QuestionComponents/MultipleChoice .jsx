@@ -42,7 +42,7 @@ const MultipleChoice = ({ item, updateSection   , index,removeQuestion , UpdateI
               />
               <input
                 type="text"
-                className="border px-2 py-1 rounded-md w-full"
+                className={`border px-2 py-1 rounded-md w-full ${item.answer == (idx) ? "bg-purple-100":""}`}
                 value={opt}
                 placeholder={`Option ${idx + 1}`}
                 onChange={({ target }) => {
