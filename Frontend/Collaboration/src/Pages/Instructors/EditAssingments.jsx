@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { LuArrowLeft, LuCheck, LuDownload, LuFileText, LuList, LuPen, LuSave, LuTrash2 } from 'react-icons/lu'
+import { LuArrowLeft, LuCheck, LuCircleAlert, LuDownload, LuFileText, LuList, LuPen, LuSave, LuTrash2 } from 'react-icons/lu'
 import TitleInput from '../../Components/Inputs/TitleInput'
 import StepProgress from '../../Components/StepProgress'
 import Modal from '../../Layouts/Modal'
@@ -278,9 +278,83 @@ const RenderForm = () => {
         setprogress(percent)
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    const validateAndNext = ()=>{
+    const validateAndNext = (e) => {
+    const errors = [];
+
+    switch (currentPage) {
+        case "basic-info": {
+            const { title, description, dueDate, difficulty } = DefaultInfo;
+
+            if (!title.trim()) errors.push("Title is required.");
+            
+            if (!description.trim()) 
+                errors.push("Description is required.");
+            
+            if (!dueDate.trim()) 
+                errors.push("Due date is required.");
+            
+            if (new Date(dueDate) < new Date()) 
+                errors.push("Due date must be in the future.");
+        
+            
+            if (!difficulty.trim()) 
+                errors.push("Difficulty level is required.");
+
+            break;
+            }
+
+
+        case "assignment-body": {
+            DefaultInfo.questions.forEach(({ type, questionText, options , marks , answer} ,Mainindex) => {
+                if (!questionText.trim( )) errors.push(`Question text is required for question ${Mainindex + 1}.`);
+                if (!marks) errors.push(`Marks are required for question ${Mainindex + 1}.`);
+                if (type === "mcq") {   
+                options.forEach((item, index) => {
+                    if (!item?.trim()) {
+                    errors.push(`Option ${index + 1} is required for question ${Mainindex + 1}.`);
+                    }
+                });
+                }
+                if(type == "true_false")
+                {
+                    if(!answer.trim())
+                     errors.push(`Answer Required for True / False`);
+
+                }
+
+            });
+
+            break;
+            }
+
+
+        case "test-cases": {
+            DefaultChlng.testCases.forEach(({ input, expectedOutput }, index) => {
+                if (!input) errors.push(`Input is required for Test Case ${index + 1}.`);
+                if (!expectedOutput.trim()) errors.push(`Expected Output is required for Test Case ${index + 1}.`);
+            });
+            break;
+        }
+
+        case "examples": {
+             if (DefaultChlng.examples.length === 0) {
+                errors.push("At least one Example is required.");
+            }
+            DefaultChlng.examples.forEach(({ input, output }, index) => {
+                if (!input.trim()) errors.push(`Input is required for Example ${index + 1}.`);
+                if (!output.trim()) errors.push(`Output is required for Example ${index + 1}.`);
+            });
+            break;
+        }
+    }
+
+    if (errors.length > 0) {
+        seterrorMsg(errors[0]); // Show the first error
+    } else {
+        seterrorMsg("");
         Next();
     }
+};
 
     useEffect(()=>{
         FetchAssingment();
@@ -531,13 +605,13 @@ const RenderForm = () => {
                         { 
                         RenderForm(currentPage)
                         }
-                        
-                        {/* {errorMsg && (
+                    
+                        {errorMsg && (
                         <div className=" flex items-center text-[11px] gap-2 font-medium  justify-center text-amber-600 bg-amber-100 py-0.5 px-2 my-1 rounded ">
                             <LuCircleAlert className="text-md" />
                             {errorMsg}
                         </div>
-                        )} */}
+                        )} 
 
                         
                         <div className="flex items-end justify-end  p-5 gap-3">
