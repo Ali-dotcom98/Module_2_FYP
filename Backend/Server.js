@@ -192,6 +192,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'),
         }
     }
 ));
+app.use('/uploadPartial', express.static(path.join(__dirname, 'uploadPartial'),
+    {
+        setHeaders: (res, path) => {
+            res.set("Access-Control-Allow-Origin", "http://localhost:5173")
+        }
+    }
+));
 
 app.get('/x/:id', async (req, res) => {
     try {
