@@ -6,9 +6,12 @@ import { useEffect } from 'react'
 import AssinmentCard from '../../../Components/Cards/AssinmentCard'
 import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
+import NoFound from '../../../Components/NotFound/NotFound'
 
 const Dasboard = () => {
   const [data, setdata] = useState([])
+  console.log(data);
+  
   const navigate = useNavigate();
 
   const fetchAssingment = async()=>{
@@ -22,22 +25,35 @@ const Dasboard = () => {
     fetchAssingment();
   },[])
   return (
-      <div className="font-urbanist grid grid-cols-1 md:grid-cols-5 md:gap-4 pt-1 pb-6 px-4 md:px-0 min-h-screen">
-            {data?.map((Assingment) => (
-            <AssinmentCard
-                key={Assingment?._id}
-                tag ="Edit"
-                imgurl={Assingment?.thumbnailLink || null}
-                title={Assingment?.title || "Untitled Resume"}
-                lastUpdated={
-                Assingment?.updatedAt
-                    ? moment(Assingment.updatedAt).format("Do MMM YYYY")
-                    : "Unknown"
-                }
-                onselect={() => navigate(`/CollaborationPannel/${Assingment._id}` )}
-            />
-            ))}
-        </div>
+      <>
+        {
+          !data.length == 0 ? (
+            <>
+              <div className="font-urbanist grid grid-cols-1 md:grid-cols-5 md:gap-4 pt-1 pb-6 px-4 md:px-0 min-h-screen">
+                  {data?.map((Assingment) => (
+                  <AssinmentCard
+                      key={Assingment?._id}
+                      tag ="Edit"
+                      imgurl={Assingment?.thumbnail || null}
+                      title={Assingment?.title || "Untitled Resume"}
+                      lastUpdated={
+                      Assingment?.updatedAt
+                          ? moment(Assingment.updatedAt).format("Do MMM YYYY")
+                          : "Unknown"
+                      }
+                      onselect={() => navigate(`/CollaborationPannel/${Assingment._id}` )}
+                  />
+                  ))}
+              </div>
+            </>
+          ):
+          (
+            <div className='font-urbanist'>
+              <NoFound/>
+            </div>
+          )
+        }
+      </>
   )
 }
 

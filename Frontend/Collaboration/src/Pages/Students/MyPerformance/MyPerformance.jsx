@@ -41,7 +41,7 @@ const MyPerformance = () => {
                 <AssinmentCard
                     tag={"Performance"}
                     ID={Assingment?._id}
-                    imgurl={Assingment?.thumbnailLink || null}
+                    imgurl={Assingment?.thumbnail || null}
                     title={Assingment?.title || "Untitled Resume"}
                     lastUpdated={
                     Assingment?.updatedAt

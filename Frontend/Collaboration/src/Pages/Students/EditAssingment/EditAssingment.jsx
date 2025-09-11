@@ -13,12 +13,15 @@ import DisplayQuestion from '../Components/DisplayQuestion';
 import axios from 'axios';
 import { Send, Slice, Vote } from 'lucide-react';
 import moment from 'moment';
+import CoverPage from '../Components/CoverPage';
+import { captureElementAsImage, dataURLtoFile, fixTailwindColors } from '../../../Utility/Helper';
 
 const EditAssingment = () => {
     const socket = useContext(SocketContext);
     const navigator = useNavigate();
     const {AssingmentId } = useParams();
     const {User} = useContext(UserContext)
+    const resumeRef = useRef();
 
     
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -35,12 +38,14 @@ const EditAssingment = () => {
     const [displayTyping, setdisplayTyping] = useState(false)
     const [DisableQuestionbyIndex, setDisableQuestionbyIndex] = useState(null)
     const [tagUser, settagUser] = useState(false)
+    const [PreviewCoverPage, setPreviewCoverPage] = useState(false)
     
     
     
 
     const [DefaultInfo, setDefaultInfo] = useState({
             title : "",
+            Instructor : null ,
             description : "",
             dueDate : "",
             totalMarks : "",
@@ -66,6 +71,7 @@ const EditAssingment = () => {
             }  
     
         })
+      
 
     const [PartialSubmission, setPartialSubmission] = useState({
         _id: "",
@@ -88,17 +94,22 @@ const EditAssingment = () => {
             online : false,
             }
         ],
+        thumbnail :"",
         status: "",
         obtainedMarks:  0 ,
         feedback: "",
         isPassed:  false,
         SubmissionVote: [],
         });
-    console.log("PartialSubmission", PartialSubmission);
+    console.log("PartialSubmission",PartialSubmission);
+    
+
     
 
     const [SocketGroup, setSocketGroup] = useState("")
     const [voteCount, setvoteCount] = useState(0)
+
+
     
     
     const FetchAssingment = async()=>{
@@ -112,6 +123,7 @@ const EditAssingment = () => {
                         title : data.title || prev.title,
                         description : data.description || prev.description,
                         dueDate : data.dueDate || prev.dueDate,
+                        Instructor : data.Instructor || prev.Instructor,
                         totalMarks : data.totalMarks || prev.totalMarks,
                         difficulty : data.difficulty || prev.difficulty,
                         questions : data.questions || prev.questions,
@@ -158,6 +170,7 @@ const EditAssingment = () => {
                         Questions: PartailAssingment.Questions || PartialSubmission.Questions,
                         Students: PartailAssingment.Students || PartialSubmission.Students, 
                         SubmissionVote: PartailAssingment.SubmissionVote || PartialSubmission.SubmissionVote, 
+                        
 
                     }))
                     return ;
@@ -167,7 +180,8 @@ const EditAssingment = () => {
                 ...prev,
                 _id : Isexist.data._id || PartialSubmission._id,
                 status : Isexist.data.status || PartialSubmission.status,
-                SubmissionVote: Isexist.data.SubmissionVote ||  Isexist.data.SubmissionVote, 
+                SubmissionVote: Isexist.data.SubmissionVote ||  Isexist.data.SubmissionVote,
+                
                 Questions: (Isexist.data.Questions || PartialSubmission.Questions).map(q => ({
                     ...q,
                     vote: q.vote || ""  
@@ -352,7 +366,7 @@ useEffect(()=>{
     if(answers)
     {
         const isSubmissionVoteExist = PartialSubmission.SubmissionVote.length;
-        console.log(isSubmissionVoteExist);
+        
         if(isSubmissionVoteExist > 0)
         {
             socket.emit("Reset", SocketGroup, currentIndex, AssingmentId, UpdateSubmission);
@@ -581,6 +595,79 @@ const VerifySubmission =()=>{
     return isexit
 }
 
+
+const upLoadAssingmentImage = async () => {
+        try {        
+            console.log("Here");
+            
+            // setisLoading(true);
+            fixTailwindColors(resumeRef.current);
+    
+            const imageDataUrl = await captureElementAsImage(resumeRef.current);
+            console.log("imageDataUrl",imageDataUrl);
+            
+    
+            // Convert base64 to File
+            const thumbnailFile = dataURLtoFile (
+    
+                imageDataUrl,
+                `Partial-${PartialSubmission._id}.png`
+            );
+            
+    
+            
+    
+            const formData = new FormData();
+            // if (ThumbnailForStudent) formData.append("profileImage", profileImageFile);
+            if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
+    
+            const uploadResponse = await AxiosInstance.put(
+                API_PATH.PARTIAL.UPLOAD_THUMBNAIL(PartialSubmission._id),
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+    
+            const { thumbnail } = uploadResponse.data;
+            UpdatePartiallAssingment(thumbnail)
+            
+
+        } catch (error) {
+            console.error("Error uploading images:", error);
+            
+        } finally {
+            setisLoading(false);
+        }
+    };
+const UpdatePartiallAssingment =async (thumbnail)=>{
+     try {
+        const response = await AxiosInstance.put(
+            API_PATH.PARTIAL.SAVE_THUMBNAIL(PartialSubmission._id),
+            {
+                ...DefaultInfo,
+                thumbnail : thumbnail
+            }
+        );
+        
+       
+    } catch (err) {
+        console.error("Error capturing image:", err);
+    } 
+
+}
+
+    useEffect(()=>{
+        if(DefaultInfo && PartialSubmission)
+        {
+            upLoadAssingmentImage();
+        }
+
+    },[PreviewCoverPage])
+    
+
     return (
     <div className=" px-5 py-4 font-urbanist flex gap-3 ">
         <div className="hidden md:flex flex-col  items-center justify-between gap-5 bg-white rounded-lg border border-purple-200 py-3 px-4">
@@ -634,7 +721,9 @@ const VerifySubmission =()=>{
                             <div className='border border-dashed rounded-md border-purple-300 flex items-center justify-between  px-3 gap-3 py-2'>
                                 
                                 <div className='w-full flex flex-col p-1 '>
-                                    <p className="text-sm font-medium text-slate-600">Refinement Votes:</p>
+                                    <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1">
+                                        Refinement Votes:
+                                    </label>
                                     <div className='flex items-center justify-between gap-4'>
                                         <div             
                                             className={ `h-0.5 w-full bg-gradient-to-r from-purple-500 to-purple-700 transition-all duration-300`}
@@ -715,8 +804,22 @@ const VerifySubmission =()=>{
                     </div>
                 </div>
             </div>
-            <div className="h-[95vh] w-full bg-gray-100 rounded-lg shadow flex flex-col">
+            <div className="relative h-[95vh] w-full bg-white rounded-lg shadow flex flex-col">
+                <div className=" flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-3 px-4 mx-3 mt-3">
+                        <button onClick={()=>setPreviewCoverPage(true)}>Click</button>
+                        <h1>Cover Page</h1>
+                        <div onClick={() => setPreviewCoverPage(false)}
+                            ref={resumeRef}
+                            className={`z-50 mt-5 -translate-y-3 absolute top-0 left-0  bg-purple-500 text-white flex items-center justify-center rounded-lg origin-right transition-all duration-700 ease-in-out
+                            ${PreviewCoverPage ? "w-full h-full opacity-100 scale-100" : "w-0 h-0 opacity-0 scale-0"}`}
+                        >
+                            {PreviewCoverPage && 
+                                <CoverPage DefaultInfo={DefaultInfo } Students = {PartialSubmission.Students} SubmittedTo = {DefaultInfo?.Instructor}/>
+                            }
+                        </div>
+                    </div> 
                 <div className="flex-1 overflow-y-auto py-3 px-5 bg-white text-sm ">
+                
                     {messages.map((item, index) => (
                     <>
                         
