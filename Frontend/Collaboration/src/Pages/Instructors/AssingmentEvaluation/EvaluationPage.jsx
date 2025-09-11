@@ -150,7 +150,7 @@ const EvaluationPage = () => {
 };
 
  const gotoHome = ()=>{
-        navigator("/Instructor/CreateAssingment")
+        navigator("/Instructor/Evaluation")
     }
 const HandleSave = async () => {
     try {
@@ -176,7 +176,7 @@ const HandleSave = async () => {
             <div className="flex items-center gap-4">
                 <button
                 className="btn-small-light"
-                // onClick={gotoHome}
+                onClick={gotoHome}
                 >
                 <LuArrowLeft className="text-[16px]" />
                 <span className="hidden md:block">Home</span>

@@ -17,12 +17,16 @@ const CreateAssingment = () => {
   const [allAssingment, setallAssingment] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  console.log(page, allAssingment ,totalPages);
+  
 
   const fetchAllAssignments = async (pageNum = 1, limit = 9) => {
     try {
       const response = await AxiosInstance.get(
         `${API_PATH.ASSIGN.ASSINGMENTS}?page=${pageNum}&limit=${limit}`
       );
+      console.log(response);
+      
       setallAssingment(response.data.data);
       setTotalPages(response.data.totalPages);
       setPage(response.data.page);
@@ -75,7 +79,7 @@ const CreateAssingment = () => {
         </button>
         {
           [...Array(totalPages)].map((_, index) => {
-            const pageNumber = index + 1; // pages start at 1
+            const pageNumber = index + 1; 
             return (
               <div
                 key={index}

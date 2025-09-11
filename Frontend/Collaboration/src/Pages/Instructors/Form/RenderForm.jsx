@@ -25,7 +25,7 @@ const displayedTests = showAllTests
 
 
     const DEFAULT_THEME =["#F5F4FF",  "#E0DBFF",  "#C9C2F8", "#6C63FF", "#4B4B5C"];
-     const resumeRef = useRef(null);
+ const resumeRef = useRef(null);
     const [baseWidth, setBaseWidth] = useState(780); // Default value
     const [scale, setScale] = useState(1);
 
