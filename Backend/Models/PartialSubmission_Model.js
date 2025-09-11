@@ -48,6 +48,7 @@ const partialSubmissionSchema = new mongoose.Schema({
 
         }
     ],
+    thumbnail: { type: String },
 
     status: {
         type: String,
