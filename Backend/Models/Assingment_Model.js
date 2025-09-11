@@ -15,7 +15,7 @@ const QuestionSchema = new mongoose.Schema({
 
 const AssignmentSchema = new mongoose.Schema({
     Instructor: {
-        type: String
+        type: String,
     },
 
     title: { type: String },
