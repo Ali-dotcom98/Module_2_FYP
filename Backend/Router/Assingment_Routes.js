@@ -6,7 +6,8 @@ const PartialSubmission_Model = require("../Models/PartialSubmission_Model");
 const upload = require("../Middleware/Upload_Middleware");
 const route = express.Router();
 const path = require("path");
-const fs = require("fs")
+const fs = require("fs");
+const { log } = require("console");
 route.post("/Create", Protect, async (req, res) => {
     try {
         const { title } = req.body
@@ -83,9 +84,13 @@ route.get("/Assingments", Protect, async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
+        console.log(page, limit);
+
         const total = await Assingment_Model.countDocuments({
             Instructor: req?.user?._id,
         });
+        console.log("req?.user?._id,", req?.user?._id,);
+
 
         const assingments = await Assingment_Model.find({
             Instructor: req?.user?._id,
@@ -93,6 +98,7 @@ route.get("/Assingments", Protect, async (req, res) => {
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
+
 
         res.json({
             page,
@@ -110,7 +116,7 @@ route.get("/Assingments/:id", Protect, async (req, res) => {
     try {
         const Assingments = await Assingment_Model.findOne({
             _id: req.params.id
-        })
+        }).populate("Instructor")
         res.send(Assingments)
     } catch (error) {
         res.status(500).json({ message: error.message })
@@ -140,7 +146,8 @@ route.get("/student", Protect, async (req, res) => {
                     $elemMatch: { _id: req.user._id }
                 }
             },
-            "settings.visibility": "public"
+            "settings.visibility": "public",
+            dueDate: { $gte: new Date() }
         });
 
 
