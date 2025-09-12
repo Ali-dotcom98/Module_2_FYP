@@ -7,14 +7,14 @@ const NoFound = () => {
         <div className='size-56 -translate-y-20 -translate-x-4'>
             <img src={Pic1} alt="No Data Found" />
         </div>
-        <div className='text-center -translate-y-14'>
-            <h1 className='text-xl font-bold text-violet-600 '>No Cards Available</h1>
-            <p className='text-sm font-medium text-gray-500 mt-2'>
-                You haven't added any cards yet, or you've deleted all of them.
-                <br />
-                Start by creating a new one!
-            </p>
-        </div>
+        <div className="text-center -translate-y-14">
+        <h1 className="text-xl font-bold text-violet-600">No Assignments Available</h1>
+        <p className="text-sm font-medium text-gray-500 mt-2">
+          You currently don’t have any assignments assigned to you.
+          <br />
+         
+        </p>
+      </div>
     </div>
   )
 }
