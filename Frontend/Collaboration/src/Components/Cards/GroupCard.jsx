@@ -15,7 +15,7 @@ const GroupCard = ({ imgurl, title, status, lastUpdated, onselect, group , ID}) 
                 <img
                     src={imgurl}
                     alt="Resume Thumbnail"
-                    className=" h-[210px] rounded"
+                    className=" h-[175px] rounded"
                 />
                 ) : (
                 <span className="text-gray-400">No Preview Available</span>
