@@ -1,73 +1,261 @@
-import { X } from "lucide-react";
-import React from "react";
+import { Save, Unlock, X, Lock } from "lucide-react";
+import React, { useContext, useState } from "react";
+import { UserContext } from "../../../../ContextApi/UserContext";
+import Model from "../../../../Layouts/Modal";
 
-const MultipleChoice = ({ item, updateSection   , index,removeQuestion , UpdateItemInArray ,AddItemInNestedArray, UpdateItemInNestedArray}) => {
+const MultipleChoice = ({
+  item,
+  removeQuestion,
+  index,
+  UpdateItemInArray,
+  updateArrayItem,
+  UpdateItemInNestedArray,
+  AddItemInNestedArray,
+  type,
+  WhoIsAnswering,
+  DisplayAnswer,
+  DisableQuestionbyIndex,
+  updateArrayItemInstructor,
+  HandleSave,
+  
+}) => {
+  const { User } = useContext(UserContext);
+  const [ConfirmSave, setConfirmSave] = useState(false);
+  const handleRatingChange = (value) => {
+    let marks = 0;
+    if (value === "Excellent") marks = item.marks;
+    else if (value === "Good") marks = Math.round(item.marks * 0.75);
+    else if (value === "Average") marks = Math.round(item.marks * 0.5);
+    else if (value === "Poor") marks = 0;
+    else marks = item.marks || 0;
+
+    updateArrayItemInstructor(index, "rating", value);
+    updateArrayItemInstructor(index, "obtainedMarks", marks);
+  };
   return (
-    <div className="border border-dashed px-3 py-1 mt-3 rounded-md">
-      <div className="col-span-2 mt-3">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-slate-600">
-            Question
-          </label>
-          <div className="flex gap-2 items-center">
-            <label className="text-xs font-medium text-slate-600">Marks</label>
-            <input
-              type="number"
-              min="1"
-              value={item.marks}
-              className="bg-slate-50 outline-none rounded-md w-12 text-center"
-              onChange={({ target }) => UpdateItemInArray( index, "marks", target.value)}
-            />
-          </div>
-        </div>
-
-        {/* Question Text */}
-        <textarea
-          placeholder="Write your MCQ question here..."
-          className="form-input resize-none mt-2 w-full"
-          rows={3}
-          value={item.questionText || ""}
-          onChange={({ target }) => UpdateItemInArray(index,"questionText", target.value)}
-        />
-
-        {/* Options */}
-        <div className="mt-3 space-y-2">
-          {item?.options?.map((opt, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name={`mcq_${item.id}`}
-                checked={item.answer == (idx)}
-                onChange={() => UpdateItemInArray(index , "answer", idx)}
-              />
-              <input
-                type="text"
-                className={`border px-2 py-1 rounded-md w-full ${item.answer == (idx) ? "bg-purple-100":""}`}
-                value={opt}
-                placeholder={`Option ${idx + 1}`}
-                onChange={({ target }) => {
-                  UpdateItemInNestedArray(index , idx,"options", target.value);
-                }}
-              />
-            </div>
-          ))}
-
+    <>
+      <div className="border border-dashed px-3 py-1 mt-3 rounded-md -translate-y-5">
+        <div className="col-span-2 mt-3">
+          {/* Header */}
           <div className="flex items-center justify-between">
-            <button
-            className="text-xs text-start text-blue-500  w-full"
-            onClick={()=>AddItemInNestedArray(index, "options" , "")}
-          >
-            + Add Option
-          </button>
-          <button onClick={()=>removeQuestion(index)} className='flex items-center justify-end text-sm  w-full'>
-                <div className='text-red-500'>
-                    <X className='size-4'/>
+            <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1">
+              Question {index + 1}
+            </label>
+            <div className="flex items-center gap-4 font-urbanist font-semibold">
+              {/* Lock status */}
+              {User.status === "Student" && (
+                <div>
+                  {item?.isLocked ? (
+                    <div className="text-sm flex items-center justify-center gap-1 rounded-xl px-3 py-0.5 bg-red-100 text-red-900">
+                      <Lock className="size-4" /> <p>Close for editing</p>
+                    </div>
+                  ) : (
+                    <div className="text-sm flex items-center justify-center gap-1 rounded-xl px-3 py-0.5 bg-green-100 text-green-900">
+                      <Unlock className="size-4" /> Open for editing
+                    </div>
+                  )}
                 </div>
-            </button>
+              )}
+
+              {/* Marks */}
+              <div className="flex gap-2 items-center">
+                <label className="text-xs font-medium text-slate-600">Marks</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={item.marks}
+                  className="bg-slate-50 outline-none rounded-md w-12 text-center"
+                  onChange={({ target }) =>
+                    UpdateItemInArray(index, "marks", target.value)
+                  }
+                />
+              </div>
+            </div>
           </div>
+
+          {/* Question Text */}
+          <textarea
+            placeholder="Write your MCQ question here..."
+            className="form-input resize-none mt-2 w-full"
+            rows={3}
+            value={item.questionText || ""}
+            onChange={
+              User.status === "Instructor"
+                ? ({ target }) =>
+                    UpdateItemInArray(index, "questionText", target.value)
+                : undefined // ✅ Use undefined, not an empty string
+            }
+          />
+
+          {/* Options */}
+          {User.status === "Instructor" ? (
+            <div className="mt-3 space-y-2">
+              {item?.options?.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name={`mcq_${item.id}`}
+                    checked={Number(item.answer)=== idx}
+                    // onChange={() => UpdateItemInArray(index, "answer", idx)}
+                  />
+                  <input
+                    type="text"
+                    className={`border px-2 py-1 rounded-md w-full ${
+                      Number(item.answer)=== idx ? "bg-purple-100" : ""
+                    }`}
+                    value={opt}
+                    placeholder={`Option ${idx + 1}`}
+                    // onChange={({ target }) =>
+                    //   UpdateItemInNestedArray(index, idx, "options", target.value)
+                    // }
+                  />
+                </div>
+              ))}
+
+              {/* Add/Remove */}
+              <div className="flex items-center justify-between">
+                {
+                  !type && (
+                    <button
+                  className="text-xs text-start text-blue-500 w-full"
+                  onClick={() => AddItemInNestedArray(index, "options", "")}
+                >
+                  + Add Option
+                </button>
+                  )
+                }
+                {!type && (
+                          <button
+                            onClick={() => removeQuestion(index)}
+                            className="flex items-center justify-end text-sm w-full"
+                          >
+                            <div className="text-red-500">
+                              <X className="size-4" />
+                            </div>
+                          </button>
+                        )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-3 my-3">
+              {item?.options?.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name={`mcq_${item.id}`}
+                    checked={Number(item.answer) == idx}
+                    onChange={() =>
+                      updateArrayItem(index, "answer", String(idx))
+                    }
+                    disabled={
+                      User.status === "Instructor" ||
+                      WhoIsAnswering?._id &&
+                      WhoIsAnswering._id !== User._id &&
+                      DisableQuestionbyIndex === index
+                    }
+                  />
+                  <input
+                    type="text"
+                    className={`border px-2 py-1 rounded-md w-full focus:outline-none ${
+                      Number(item.answer) === idx ? "bg-purple-100" : ""
+                    }`}
+                    onClick={() => updateArrayItem(index, "answer", String(idx))}
+                    value={opt}
+                    placeholder={`Option ${idx + 1}`}
+                    
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {type && (
+          <div className="flex items-center justify-between w-full">
+            {DisplayAnswer &&
+              DisableQuestionbyIndex === index &&
+              !item.isLocked && (
+                <p className="w-fit text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md">
+                  {WhoIsAnswering.name} is Typing ....
+                </p>
+              )}
+
+            {User.status === "Student" && item.isLocked && (
+              <p className="w-full">
+                                <div className='w-fit flex  text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md space-x-1'>
+                                    <h1>Save By </h1>
+                                    <p> {item.lockedby.name}</p>
+                                </div>
+                            </p>  
+            )}
+
+            <div className="flex items-center justify-end text-sm w-full gap-3">
+              {User.status === "Student" && (
+                <button
+                  onClick={() => setConfirmSave(true)}
+                  className={`btn-small-light w-fit flex items-center gap-1 ${
+                    item.isLocked ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  <Save className="size-4" /> Save
+                </button>
+              )}
+
+              {User.status === "Instructor" && (
+                <>
+                  <label className="btn-small-light mt-2">Rating</label>
+                  <select
+                    value={item.rating || ""}
+                    onChange={(e) => handleRatingChange(e.target.value)}
+                    className="w-full text-sm text-black outline-none bg-white border border-slate-100 px-2.5 py-2 rounded-md mt-2 placeholder:text-gray-500 focus-within:border-purple-300"
+                  >
+                    <option value="">Select rating</option>
+                    <option value="Excellent">🌟 Excellent</option>
+                   
+                    <option value="Poor">👎 Poor</option>
+                  </select>
+                  <input
+                    value={item?.obtainedMarks}
+                    className="bg-slate-100 outline-none rounded-md py-2 mt-2 w-16 text-center"
+                    type="number"
+                    min={0}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+      <Model
+            isOpen={ConfirmSave}
+            onClose={() => setConfirmSave(false)}
+            title ={"Confirm Save"}
+            type={"Banner"}
+            >
+            <div className="p-4 font-urbanist h-full">
+                <h2 className="text-lg font-semibold mb-2">Save Assingment Progress</h2>
+                <p className="text-sm text-gray-700 mb-4">
+                Are you sure you want to save this answer?  
+                Once saved, it cannot be rewritten unless others vote to unlock it.
+                </p>
+
+                <div className="flex justify-end space-x-3 border">
+                <button
+                    className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                    onClick={() => setConfirmSave(false)}
+                >
+                    Cancel
+                </button>
+                <button
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                   onClick={() => (setConfirmSave(false), HandleSave())}
+                >
+                    Save Answer
+                </button>
+                </div>
+            </div>
+        </Model>
+    </>
   );
 };
 

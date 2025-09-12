@@ -4,11 +4,14 @@ import Modal from '../../../Layouts/Modal'
 import AxiosInstance from '../../../Utility/AxiosInstance'
 import { API_PATH } from '../../../Utility/ApiPath'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { LuCircleAlert } from 'react-icons/lu'
 
 
 const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,assignmentMode,numberOfGroups,UpdateSection}) => {
   const [displayGroups, setdisplayGroups] = useState(false)
-  const [studentPerGroup, setstudentPerGroup] = useState(0)
+  const [studentPerGroup, setstudentPerGroup] = useState(studentsPerGroup || 0)
+
+  
   const [groups, setgroups] = useState(0)
   
   const [groupedStudents, setGroupedStudents] = useState([]);
@@ -16,6 +19,7 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
   const [studentPool, setStudentPool] = useState([]); // unassigned students
   const [groupsDetails, setGroupsDetails] = useState([]);
 
+  const [error, seterror] = useState("")
 
   console.log("groupsDetail",groupsDetail);
 
@@ -167,6 +171,22 @@ useEffect(() => {
   }
 }, [assignmentMode, student, groups]);
 
+const handleView = ()=>{
+  if(studentPerGroup == 0 )
+    return seterror("Students Per Group is required")
+  else
+    setdisplayGroups(true)
+}
+
+useEffect(() => {
+  if (!error) return;
+
+  const timeout = setTimeout(() => {
+    seterror("");
+  }, 3000);
+
+  return () => clearTimeout(timeout);
+}, [error]);
 
 
 
@@ -232,8 +252,14 @@ useEffect(() => {
                 </div>
                 <div className='flex flex-col space-y-1.5 '>
                   <label htmlFor=""  className="font-medium">Group Details</label>
-                  <button className='btn-primary' onClick={()=>setdisplayGroups(true)}>View</button>
+                  <button className='btn-primary' onClick={handleView}>View</button>
                 </div>
+                {error && (
+                  <div className=" flex items-center text-[11px] gap-2 font-medium  justify-center text-amber-600 bg-amber-100 py-0.5 px-2 my-1 rounded ">
+                      <LuCircleAlert className="text-md" />
+                      {error}
+                  </div>
+                  )} 
 
             </div>
         </div>
@@ -245,105 +271,129 @@ useEffect(() => {
           >
             <div className="flex w-full h-full">
               {assignmentMode === "random" && (
-              <div className=" w-full ">
-                <div className={`grid grid-cols-${groups} gap-4 h-full min-w-max`}>
-                  {groupedStudents.map((grp, index) => (
-                    <div key={index} className="col-span-1 p-2 min-w-[200px]">
-                      <h1 className="font-medium mb-2">Group {index + 1}</h1>
-                      {grp.map((st, i) => (
-                        <div key={i} className="border rounded px-2 py-1 my-1">
-                          {st.name}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
+                <div className="w-full">
+                  <div className={`flex flex-col space-y-4 mt-5 h-full min-w-max`}>
+                    {groupedStudents.map((grp, index) => (
+                      <div
+                        key={index}
+                        className="col-span-1 bg-purple-50 mx-5 rounded-2xl shadow-md p-4 min-w-[220px] transition hover:shadow-lg"
+                      >
+                        <h1 className="text-lg font-semibold bg-purple-400 dark:text-gray-100 mb-3 border-b  p-2 rounded-md">
+                          Group {index + 1}
+                        </h1>
+                        {grp.map((st, i) => (
+                          <div
+                            key={i}
+                            className="border border-purple-400  rounded-lg px-3 py-2 my-2  transition"
+                          >
+                            {st.name}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-end py-6">
+                    <button
+                      className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition-colors duration-200"
+                      onClick={() => HandleSave("random")}
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
-                <div className='flex items-center justify-end py-4'>
-                  <button className='btn-small' onClick={()=>HandleSave("random")}>Save</button>
-                </div>
-            </div>
-          )}
+              )}
+
 
 
               {assignmentMode === "instructor" && (
-                // ✅ Instructor Mode (drag and drop)
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  {/* Student Pool */}
-                  <Droppable droppableId="studentPool" direction="vertical" >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className="border p-3 w-1/4 overflow-y-auto flex flex-col items-center justify-between"
-                      >
-                        <div>
-                          <h2 className="font-bold mb-2">All Students</h2>
-                        {studentPool.map((st, index) => (
-                          <Draggable key={st._id} draggableId={st._id} index={index}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="border rounded px-2 py-1 mb-2 bg-gray-100"
-                              >
-                                {st.name}
-                              </div>
-                            )}
-                          </Draggable>
-
-                        ))}
-                        </div>
-                        
-                        {provided.placeholder}
-                        <div className='flex items-center justify-center'>
-                          <button onClick={()=>HandleSave("Instructor")} className={`${studentPool==0 ?"btn-small":"btn-small-light"}`} disabled={studentPool.length > 0}
-                            >Save</button>
-                        </div>
-                      </div>
-                      
-                    )}
-                  </Droppable>
-
-                  {/* Groups */}
-                  <div className="flex gap-4 w-3/4 overflow-x-auto">
-  {groupsDetails.map((students, groupIndex) => (
-    <Droppable droppableId={`${groupIndex}`} key={groupIndex}>
+  <DragDropContext onDragEnd={handleDragEnd}>
+    {/* Student Pool */}
+    <Droppable droppableId="studentPool" direction="vertical">
       {(provided) => (
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="border p-3 min-w-[200px] rounded bg-white"
+          className="border mx-5  border-purple-300 bg-purple-400 rounded-2xl p-4 w-1/4 overflow-y-auto flex flex-col justify-between shadow-md"
         >
-          <h3 className="font-medium mb-2">Group {groupIndex + 1}</h3>
-          {students.map((student, studentIndex) => (
-            <Draggable
-              draggableId={student._id}
-              index={studentIndex}
-              key={student._id}
-            >
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className="border rounded px-2 py-1 mb-2 bg-green-100"
-                >
-                  {student.name}
-                </div>
-              )}
-            </Draggable>
-          ))}
+          <div>
+            <h2 className="text-lg font-semibold  text-white  mb-3 border-b pb-2">
+              All Students
+            </h2>
+            {studentPool.map((st, index) => (
+              <Draggable key={st._id} draggableId={st._id} index={index}>
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className="border border-purple-800 bg-purple-100  rounded-lg px-3 py-2 mb-2  transition"
+                  >
+                    {st.name}
+                  </div>
+                )}
+              </Draggable>
+            ))}
+          </div>
+
           {provided.placeholder}
+          <div className="flex items-center justify-center mt-4">
+            <button
+              onClick={() => HandleSave("Instructor")}
+              className={`px-4 py-2 rounded-xl shadow transition-colors duration-200 ${
+                studentPool.length === 0
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+              disabled={studentPool.length > 0}
+            >
+              Save
+            </button>
+          </div>
         </div>
       )}
     </Droppable>
-  ))}
-</div>
 
-                </DragDropContext>
+    {/* Groups */}
+    <div className="flex gap-6 w-3/4 overflow-x-auto pl-4">
+      {groupsDetails.map((students, groupIndex) => (
+        <Droppable droppableId={`${groupIndex}`} key={groupIndex}>
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="border border-purple-400  rounded-2xl p-4 min-w-[220px] bg-purple-50 shadow hover:shadow-lg transition"
+            >
+              <h3 className="text-lg font-semibold  mb-3 border-b pb-2 border-purple-400">
+                Group {groupIndex + 1}
+              </h3>
+              {students.map((student, studentIndex) => (
+                <Draggable
+                  draggableId={student._id}
+                  index={studentIndex}
+                  key={student._id}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="border border-green-400 rounded-lg px-3 py-2 mb-2 bg-green-200    transition"
+                    >
+                      {student.name}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      ))}
+    </div>
+  </DragDropContext>
+)}
 
-              )}
             </div>
         </Modal>
 

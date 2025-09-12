@@ -8,6 +8,8 @@ import GroupCard from '../../../Components/Cards/GroupCard';
 
 const StudentsAssingments = () => {
     const [Data, setData]= useState([])
+    console.log(Data);
+    
     const Navigator = useNavigate();
     const location = useLocation();
     const { Assingment } = location.state || {};
@@ -55,7 +57,7 @@ const StudentsAssingments = () => {
                             <GroupCard
                                 
                                 ID={item?._id}
-                                imgurl={item?.thumbnailLink || null}
+                                imgurl={item?.thumbnail || null}
                                 title={`Group-${index+1}`}
                                 group={item.Students}
                                 status={item.status}

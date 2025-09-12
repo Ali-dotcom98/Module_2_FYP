@@ -9,6 +9,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
     console.log(index);
     
     const [ConfirmSave, setConfirmSave] = useState(false)
+    
     // console.log("WhoIsAnswering",WhoIsAnswering);
     // console.log("item",item);
 
@@ -115,7 +116,10 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                             {
                                 DisplayAnswer  && DisableQuestionbyIndex == index && !item.isLocked &&   (
                                     <div className='w-full'>
-                                        <p className="w-fit text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md">{WhoIsAnswering.name} is Typing ....</p>
+                                        {
+                                            WhoIsAnswering && <p className="w-fit text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md">{WhoIsAnswering.name} is Typing ....</p>
+
+                                        }
                                     </div>
                                 )
                             }
