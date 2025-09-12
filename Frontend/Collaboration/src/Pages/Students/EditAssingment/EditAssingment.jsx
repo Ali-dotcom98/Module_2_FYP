@@ -41,6 +41,7 @@ const EditAssingment = () => {
     const [PreviewCoverPage, setPreviewCoverPage] = useState(false)
     
     
+
     
 
     const [DefaultInfo, setDefaultInfo] = useState({
@@ -72,7 +73,8 @@ const EditAssingment = () => {
     
         })
       
-
+        // console.log("DefaultInfo",DefaultInfo);
+        
     const [PartialSubmission, setPartialSubmission] = useState({
         _id: "",
         Questions: [
@@ -101,7 +103,7 @@ const EditAssingment = () => {
         isPassed:  false,
         SubmissionVote: [],
         });
-    console.log("PartialSubmission",PartialSubmission);
+    // console.log("PartialSubmission",PartialSubmission);
     
 
     
@@ -329,30 +331,33 @@ useEffect(() => {
     }, [AssingmentId, User]);
 
 useEffect(() => {
-    const totalStudents = PartialSubmission?.Students?.length || 0;
+  const totalStudents = PartialSubmission?.Students?.length || 0;
 
-    if (voteCount >= (totalStudents / 2) && totalStudents > 0) {
-        setPartialSubmission((prev) => {
-            const update = [...prev.Questions];
-            update[currentIndex] = {
-                ...update[currentIndex],
-                answer: "",
-                isLocked: false,
-                lockedby: null,
-                vote: []
-            };
-            const UpdateSubmission =  {
-                ...prev,
-                Questions: update
-            };
-            socket.emit("ResetVotes", SocketGroup);
-        
-            return UpdateSubmission
-        });
+  if (voteCount >= (totalStudents / 2) && totalStudents > 0) {
+    setPartialSubmission((prev) => {
+      const update = [...prev.Questions];
+      update[currentIndex] = {
+        ...update[currentIndex],
+        answer: "",      
+        isLocked: false, 
+        lockedby: null,  
+        vote: []        
+      };
 
-        
-    }
+      const UpdateSubmission = {
+        ...prev,
+        Questions: update
+      };
+
+      setWhoIsAnswering("");
+
+      socket.emit("ResetVotes", SocketGroup, currentIndex, UpdateSubmission);
+
+      return UpdateSubmission;
+    });
+  }
 }, [voteCount, currentIndex, PartialSubmission?.Students?.length]);
+
 
 useEffect(() => {
     if(PartialSubmission)
@@ -488,6 +493,7 @@ const updateArrayItem = (index, key, value) => {
         socket.emit("Answering", User, SocketGroup, currentIndex,answerText, true);
         }
 
+
         return newState;
     });
 };
@@ -598,7 +604,7 @@ const VerifySubmission =()=>{
 
 const upLoadAssingmentImage = async () => {
         try {        
-            console.log("Here");
+     
             
             // setisLoading(true);
             fixTailwindColors(resumeRef.current);
@@ -618,7 +624,6 @@ const upLoadAssingmentImage = async () => {
             
     
             const formData = new FormData();
-            // if (ThumbnailForStudent) formData.append("profileImage", profileImageFile);
             if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
     
             const uploadResponse = await AxiosInstance.put(

@@ -5,7 +5,8 @@ import MultipleChoice from '../../Instructors/Form/QuestionComponents/MultipleCh
 import Paragraph from '../../Instructors/Form/QuestionComponents/Paragraph';
 
 const DisplayQuestion = ({item , index ,updateArrayItemInstructor, updateArrayItem , WhoIsAnswering , DisplayAnswer , DisableQuestionbyIndex , HandleSave}) => {
-
+    console.log("item",item);
+    
     const RenderTypeOfComponents = (type , item , index)=>{
         switch (type) {
             case "short_answer":
@@ -25,15 +26,31 @@ const DisplayQuestion = ({item , index ,updateArrayItemInstructor, updateArrayIt
                 );
             case "true_false":
                 return(
-                    <TrueFalse item={item}
+                    <TrueFalse
+                        item={item}
                         index={index}
+                        type ={"Students"}
+                        updateArrayItem ={updateArrayItem}
+                        updateArrayItemInstructor={updateArrayItemInstructor}
+                        DisplayAnswer = {DisplayAnswer}
+                        WhoIsAnswering = {WhoIsAnswering}
+                        DisableQuestionbyIndex = {DisableQuestionbyIndex}
+                        HandleSave = {HandleSave}
                     />
                     
                 )
             case "mcq":
                 return(
-                    <MultipleChoice item={item}
+                    <MultipleChoice 
+                        item={item}
                         index={index}
+                        type ={"Students"}
+                        updateArrayItem ={updateArrayItem}
+                        updateArrayItemInstructor={updateArrayItemInstructor}
+                        DisplayAnswer = {DisplayAnswer}
+                        WhoIsAnswering = {WhoIsAnswering}
+                        DisableQuestionbyIndex = {DisableQuestionbyIndex}
+                        HandleSave = {HandleSave}
                     />
                     
                 )

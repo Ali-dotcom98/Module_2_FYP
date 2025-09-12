@@ -4,6 +4,7 @@ import { API_PATH } from '../../../Utility/ApiPath';
 import { data } from 'react-router-dom';
 import AssinmentCard from '../../../Components/Cards/AssinmentCard';
 import moment from 'moment';
+import Result from '../../../Components/Cards/Result';
 const MyPerformance = () => {
     const [Data, setData] = useState([])
     const [display, setdisplay] = useState("")
@@ -53,7 +54,7 @@ const MyPerformance = () => {
                 ))}
         </div>
         <div onClick={()=>setdisplay("")}   className={`min-h-screen border rounded-md bg-slate-50 px-5 py-5 absolute w-1/2 top-0 right-0 transform transition-transform duration-500 ease-in-out ${display ? "translate-x-0":"-right-32 translate-x-full"}`}>
-                
+                <Result AssingmentID = {display}/>
         </div>
    </div>
   )
