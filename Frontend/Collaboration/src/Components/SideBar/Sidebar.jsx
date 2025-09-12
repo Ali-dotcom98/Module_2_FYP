@@ -86,7 +86,7 @@ return (
         <Modal
             onClose={()=>setConfirmLogout((prev)=>!prev)}
             isOpen = {ConfirmLogout}
-            type={"Banner"}
+            type={"small"}
             title={"LogOut"}
         >
             <div className="flex flex-col justify-center text-center  h-full">
