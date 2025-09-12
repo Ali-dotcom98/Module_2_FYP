@@ -16,6 +16,7 @@ export const API_PATH = {
         STUDENTASSINGMENTS: "/Assign/student",
         DELETE: (ID) => `/Assign/Assingments/${ID}`,
         STATS: "/Assign/Assingments/Count/By-day",
+        RESULT: (ID) => `/Assign/Result/${ID}`
     },
     PARTIAL:
     {
