@@ -138,7 +138,7 @@ route.get("/SubmissionDetail/:id", Protect, async (req, res) => {
 route.put("/SaveEvaluation/:id", async (req, res) => {
     try {
         const { PartialSubmission } = req.body
-        console.log(PartialSubmission);
+        console.log("PartialSubmission", PartialSubmission);
 
         const EvaluateAllAnswer = PartialSubmission.Questions.every((item) => item.obtainedMarks != "")
         console.log(EvaluateAllAnswer);

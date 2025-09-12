@@ -77,7 +77,7 @@ route.put("/Update/:id", Protect, async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 })
-// GET /Assingments?page=1&limit=10
+
 route.get("/Assingments", Protect, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -280,6 +280,24 @@ route.get("/Assingments/Count/By-day", Protect, async (req, res) => {
     }
 });
 
+
+route.get("/Result/:id", Protect, async (req, res) => {
+    try {
+        const Id = req.params.id
+        const AssingmentResult = await PartialSubmission_Model.findOne(
+            {
+                assignmentId: Id,
+                Students: { $elemMatch: { _id: req.user._id } },
+                status: "graded"
+
+            }
+        )
+        res.send(AssingmentResult)
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+})
 
 
 
