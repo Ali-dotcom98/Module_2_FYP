@@ -81,6 +81,20 @@ const partialSubmissionSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         }
+    ],
+    messages: [
+        {
+            User: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+
+            },
+            message: { type: String },
+            timestamp: {
+                type: Date,
+                default: Date.now
+            }
+        }
     ]
 
 }, { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } });
