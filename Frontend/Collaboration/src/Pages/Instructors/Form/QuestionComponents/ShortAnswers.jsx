@@ -73,7 +73,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                 </div>
                 <textarea
                     placeholder="Write a function that takes an array of integers and returns the maximum and minimum numbers as a tuple or list."
-                    className={`form-input resize-none ${type ? "h-16":""}`}
+                    className={`form-input border-slate-300 resize-none ${type ? "h-16":""}`}
                     rows={4}
                     disabled={User.status == "Student" ? true : false} 
                     value={item.questionText|| ""}
@@ -93,7 +93,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                                     item.isLocked 
                                     || (WhoIsAnswering && WhoIsAnswering?._id !== User._id && DisableQuestionbyIndex === index) 
                                 }
-                                className={`w-full text-sm  outline-none border   px-2.5 py-3 rounded-md mt-2 placeholder:text-gray-500 focus-within:border-purple-300 resize-none ${type ? "h-32":""}  ${ WhoIsAnswering && WhoIsAnswering?._id !== User._id && DisableQuestionbyIndex == index ?"border-slate-200 bg-slate-100 text-gray-400 font-medium italic":"border-slate-100 bg-white text-black"}`}
+                                className={`w-full text-sm  outline-none border   px-2.5 py-3 rounded-md mt-2 placeholder:text-gray-500 focus-within:border-purple-300 resize-none ${type ? "h-32":""}  ${ WhoIsAnswering && WhoIsAnswering?._id !== User._id && DisableQuestionbyIndex == index ?"border-slate-300 bg-slate-100 text-gray-400 font-medium italic":"border-slate-300  bg-white text-black"}`}
                                 rows={4}
                                 value={item.answer}
                                 onChange={({ target }) => updateArrayItem(index , "answer", target.value)}s
@@ -187,16 +187,16 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
             isOpen={ConfirmSave}
             onClose={() => setConfirmSave(false)}
             title ={"Confirm Save"}
-            type={"Banner"}
+            type={"small"}
             >
             <div className="p-4 font-urbanist h-full">
                 <h2 className="text-lg font-semibold mb-2">Save Assingment Progress</h2>
-                <p className="text-sm text-gray-700 mb-4">
-                Are you sure you want to save this answer?  
+                <p className="text-sm text-gray-700 mb-4 space-y-2">
+                Are you sure you want to save this answer?<br/>
                 Once saved, it cannot be rewritten unless others vote to unlock it.
                 </p>
 
-                <div className="flex justify-end space-x-3 border">
+                <div className="flex justify-end space-x-3  translate-y-3">
                 <button
                     className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
                     onClick={() => setConfirmSave(false)}

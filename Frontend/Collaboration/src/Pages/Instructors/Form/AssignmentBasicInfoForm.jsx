@@ -18,9 +18,9 @@ const AssignmentBasicInfoForm = ({title , description ,dueDate ,difficulty, tota
                     type="text"
                     />
 
-                    <div className='flex flex-col my-2 space-y-1.5'>
+                    <div className='flex flex-col my-2 space-y-1.5 '>
                         <label htmlFor=""  className="font-medium">Difficulty</label>
-                        <select value={difficulty} onChange={({target})=>UpdateSection("difficulty",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md' name="" id="">
+                        <select value={difficulty} onChange={({target})=>UpdateSection("difficulty",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md border' name="" id="">
                             <option value="easy">Easy</option>
                             <option value="medium">Medium</option>
                             <option value="hard">Hard</option>

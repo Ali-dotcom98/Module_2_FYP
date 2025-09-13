@@ -67,11 +67,10 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
   )
     return;
 
-  let updatedGroups = [...groupsDetails]; // now groupsDetails is array of arrays
-  let updatedPool = [...studentPool];
+  let updatedGroups = [...groupsDetails]; 
   let movedStudent;
 
-  // Remove student from source
+  
   if (source.droppableId === "studentPool") {
     movedStudent = updatedPool[source.index];
     updatedPool.splice(source.index, 1);
@@ -81,7 +80,7 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
     updatedGroups[sourceGroupIndex].splice(source.index, 1);
   }
 
-  // Restriction logic (max students per group)
+  
   if (destination.droppableId !== "studentPool" && studentPerGroup > 0) {
     const destGroupIndex = parseInt(destination.droppableId, 10);
     const destGroup = updatedGroups[destGroupIndex];
@@ -99,7 +98,7 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
     }
   }
 
-  // Add student to destination
+
   if (destination.droppableId === "studentPool") {
     updatedPool.splice(destination.index, 0, movedStudent);
   } else {
@@ -165,8 +164,6 @@ useEffect(() => {
 useEffect(() => {
   if (assignmentMode === "instructor" && student.length > 0) {
     setStudentPool(student);
-
-    // Always ensure groupsDetails has "groups" number of arrays
     setGroupsDetails(Array.from({ length: groups > 0 ? groups : 1 }, () => []));
   }
 }, [assignmentMode, student, groups]);
@@ -208,14 +205,14 @@ useEffect(() => {
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 my-3'>
             <div className='flex flex-col  '>
                 <label htmlFor=""  className="font-medium">Visibility</label>
-                <select value={visibility} onChange={({target})=>UpdateSection(null , "visibility",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md' name="" id="">
+                <select value={visibility} onChange={({target})=>UpdateSection(null , "visibility",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md border'  name="" id="">
                     <option value="public">Public</option>
                     <option value="private">Private</option>
                 </select>
             </div>
             <div>
                 <label htmlFor=""  className="font-medium">Total Students</label>
-                <input type="text" className='p-3 pr-10 bg-slate-50 outline-none rounded-md w-full' disabled= {true} value={student.length} name="" id="" />
+                <input type="text" className='p-3 pr-10 border bg-slate-50 outline-none rounded-md w-full' disabled= {true} value={student.length} name="" id="" />
 
             </div>
           </div>
@@ -245,7 +242,7 @@ useEffect(() => {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div className='flex flex-col space-y-1.5 '>
                   <label htmlFor=""  className="font-medium">Assingment Mode</label>
-                  <select value={assignmentMode} onChange={({target})=>UpdateSection("groupSettings","assignmentMode",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md' name="" id="">
+                  <select value={assignmentMode} onChange={({target})=>UpdateSection("groupSettings","assignmentMode",target.value)} className='p-3 border bg-slate-50 relative outline-none rounded-md' name="" id="">
                       <option value="random">Random</option>
                       <option value="instructor">Instructor</option>
                   </select>
