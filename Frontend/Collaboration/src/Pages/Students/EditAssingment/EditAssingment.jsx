@@ -1,7 +1,7 @@
 import React, { use, useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import AxiosInstance from '../../../Utility/AxiosInstance';
-import { LuArrowLeft, LuCircleAlert, LuDownload, LuSave, LuSaveAll, LuTrash2 } from 'react-icons/lu';
+import { LuArrowLeft, LuCircleAlert, LuDownload, LuPaperclip, LuSave, LuSaveAll, LuTrash2 } from 'react-icons/lu';
 import TitleInput from '../../../Components/Inputs/TitleInput';
 import StepProgress from '../../../Components/StepProgress';
 import Modal from '../../../Layouts/Modal';
@@ -22,15 +22,24 @@ const EditAssingment = () => {
     const {AssingmentId } = useParams();
     const {User} = useContext(UserContext)
     const resumeRef = useRef();
+    const containerRef = useRef(null);
 
     
     const [currentIndex, setCurrentIndex] = useState(0);
     const [errorMsg, seterrorMsg] = useState("")
     const [isLoading, setisLoading] = useState(false)
+    const [isFetching, setIsFetching] = useState(false);
 
     const [progress, setprogress] = useState(0)
     const [Join, setJoin] = useState("")
     const [messages, setMessages] = useState([]);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const limit = 10;
+
+    
+    console.log(messages);
+    
     const [text, settext] = useState("")
     const [typingUser, settypingUser] = useState("")
     const [WhoIsAnswering, setWhoIsAnswering] = useState("")
@@ -39,10 +48,7 @@ const EditAssingment = () => {
     const [DisableQuestionbyIndex, setDisableQuestionbyIndex] = useState(null)
     const [tagUser, settagUser] = useState(false)
     const [PreviewCoverPage, setPreviewCoverPage] = useState(false)
-    
-    
-
-    
+    const [StudentInfo, setStudentInfo] = useState([])
 
     const [DefaultInfo, setDefaultInfo] = useState({
             title : "",
@@ -102,10 +108,9 @@ const EditAssingment = () => {
         feedback: "",
         isPassed:  false,
         SubmissionVote: [],
+        messages: [],
         });
-    // console.log("PartialSubmission",PartialSubmission);
-    
-
+    console.log("PartialSubmission",PartialSubmission);
     
 
     const [SocketGroup, setSocketGroup] = useState("")
@@ -129,6 +134,7 @@ const EditAssingment = () => {
                         totalMarks : data.totalMarks || prev.totalMarks,
                         difficulty : data.difficulty || prev.difficulty,
                         questions : data.questions || prev.questions,
+                        
                         settings: {
                             ...prev.settings,              
                             ...data.settings,             
@@ -172,6 +178,8 @@ const EditAssingment = () => {
                         Questions: PartailAssingment.Questions || PartialSubmission.Questions,
                         Students: PartailAssingment.Students || PartialSubmission.Students, 
                         SubmissionVote: PartailAssingment.SubmissionVote || PartialSubmission.SubmissionVote, 
+                        messages: PartailAssingment.messages || PartialSubmission.messages, 
+
                         
 
                     }))
@@ -183,7 +191,7 @@ const EditAssingment = () => {
                 _id : Isexist.data._id || PartialSubmission._id,
                 status : Isexist.data.status || PartialSubmission.status,
                 SubmissionVote: Isexist.data.SubmissionVote ||  Isexist.data.SubmissionVote,
-                
+                messages:  Isexist.data.messages ||  Isexist.data.messages,
                 Questions: (Isexist.data.Questions || PartialSubmission.Questions).map(q => ({
                     ...q,
                     vote: q.vote || ""  
@@ -216,12 +224,24 @@ useEffect(() => {
         setJoin(name);        
     };
 
-    const handleReceiveMessage = (User, text) => {
-        setMessages(prev => [
-            ...prev,
-            { User: User._id, message: text, timestamp: new Date() },
-        ]);
-    };
+const handleReceiveMessage = async (User, text, PartialID) => {
+  const newMessage = {
+    User: User._id,
+    message: text,
+    timestamp: new Date(),
+  };
+
+  setMessages(prevMessages => {
+    const updatedMessages = [...prevMessages, newMessage];
+    console.log("updatedMessages", updatedMessages);
+    
+
+    saveMessages(updatedMessages, PartialID);
+
+    return updatedMessages; 
+  });
+};
+
 
     socket.on("userTyping", (User , Flag)=>{
         settypingUser(User.name)
@@ -359,6 +379,64 @@ useEffect(() => {
 }, [voteCount, currentIndex, PartialSubmission?.Students?.length]);
 
 
+const saveMessages = async (messages, PartialID) => {
+  try {
+    await AxiosInstance.put(
+      API_PATH.PARTIAL.SAVE_MESSAGE(PartialID),
+      { messages }
+    );
+  } catch (err) {
+    console.error("Failed to save messages:", err);
+  }
+};
+
+const fetchMessages = async (pageNum = 1) => {
+  try {
+    const res = await AxiosInstance.get(
+      `${API_PATH.PARTIAL.GET_MESSAGE(PartialSubmission._id)}?page=${pageNum}&limit=${limit}`
+    );
+    setMessages((prev) => [...res.data.messages, ...prev]);
+    setHasMore(res.data.hasMore);
+  } catch (err) {
+    console.error("Failed to fetch messages:", err);
+  }
+};
+
+useEffect(() => {
+    if(PartialSubmission)
+    {
+        fetchMessages(1);
+    }
+  
+}, [PartialSubmission]);
+
+const handleScroll = async (e) => {
+  const el = e.target;
+  if (isFetching || !hasMore) return;
+
+  // At the top? Fetch older messages
+  if (el.scrollTop <= 0) {
+    setIsFetching(true);
+
+    const prevHeight = el.scrollHeight;
+    await fetchMessages(page + 1);
+    setPage((prev) => prev + 1);
+
+    // Maintain scroll position after prepend
+    requestAnimationFrame(() => {
+      const newHeight = el.scrollHeight;
+      el.scrollTop = newHeight - prevHeight;
+      setIsFetching(false);
+    });
+  }
+};
+
+useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
 useEffect(() => {
     if(PartialSubmission)
     {
@@ -400,6 +478,7 @@ const handleSubmit = (e)=>{
         SocketGroup,
         User: User,
         message: text,
+        PartialSub : PartialSubmission?._id
     });
         
     settext("");
@@ -541,7 +620,6 @@ const handletext =(e)=>{
     const {name , value} = e.target
     settext(e.target.value)
     socket.emit("Typing", SocketGroup,User, true)
-   
 }
 
 useEffect(() => {
@@ -549,6 +627,13 @@ useEffect(() => {
     return settagUser(true)
   settagUser(false)
 }, [text]);
+
+useEffect(() => {
+  if (PartialSubmission?.Students) {
+    setStudentInfo([...PartialSubmission.Students]);
+  }
+}, [PartialSubmission]);
+
 
 const handleBlur = () => {
   socket.emit("Typing", SocketGroup, User, false);
@@ -610,7 +695,7 @@ const upLoadAssingmentImage = async () => {
             fixTailwindColors(resumeRef.current);
     
             const imageDataUrl = await captureElementAsImage(resumeRef.current);
-            console.log("imageDataUrl",imageDataUrl);
+            
             
     
             // Convert base64 to File
@@ -671,6 +756,14 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
         }
 
     },[PreviewCoverPage])
+
+    const MessageBYWhom = (Id)=>{
+      
+        const Person = StudentInfo.find((item)=> item._id == Id);
+ 
+        
+        return Person.name.slice(0,2)
+    }
     
 
     return (
@@ -710,6 +803,7 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                 <div className='grid grid-rows-4 w-full  h-[90%] px-3 py-4'>
                     <div className='row-span-3'>
                         {DefaultInfo.questions.length > 0 && (
+
                             <DisplayQuestion
                                 item={PartialSubmission.Questions[currentIndex]}
                                 index = {currentIndex}
@@ -810,9 +904,13 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                 </div>
             </div>
             <div className="relative h-[95vh] w-full bg-white rounded-lg shadow flex flex-col">
-                <div className=" flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-3 px-4 mx-3 mt-3">
-                        <button onClick={()=>setPreviewCoverPage(true)}>Click</button>
-                        <h1>Cover Page</h1>
+                <div className=" flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-2.5 px-4 mx-3 mt-3.5">
+                        
+                        <h1 className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-1 rounded flex items-center gap-1 cursor-pointer" onClick={()=>setPreviewCoverPage(true)}> <LuPaperclip className='size-4'/><p>Cover Page</p></h1>
+                        <p className='border px-3 py-0.5 text-[14px] rounded relative'>{User.name}
+                            <p className='size-3 bg-green-500 rounded-full absolute -right-1 -bottom-1 '></p>
+                        </p>
+                        
                         <div onClick={() => setPreviewCoverPage(false)}
                             ref={resumeRef}
                             className={`z-50 mt-5 -translate-y-3 absolute top-0 left-0  bg-purple-500 text-white flex items-center justify-center rounded-lg origin-right transition-all duration-700 ease-in-out
@@ -823,7 +921,10 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                             }
                         </div>
                     </div> 
-                <div className="flex-1 overflow-y-auto py-3 px-5 bg-white text-sm ">
+                <div 
+                    onScroll={handleScroll}
+                    ref={containerRef}    
+                    className="flex-1 overflow-y-auto py-3 px-5 bg-white text-sm ">
                 
                     {messages.map((item, index) => (
                     <>
@@ -837,9 +938,9 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                             }`}
                         >   
                             {
-                                item.User != User._id && (
+                                (
                                     <div className='bg-white rounded-full size-10 px-3 flex items-center justify-center'>
-                                        <p className='text-center'>{User.name.slice(0,2)}</p>
+                                        <p className='text-center'>{MessageBYWhom(item.User)}</p>
                                     </div>
                                 )
                             }
@@ -881,7 +982,7 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                     />
                     {
                         tagUser && (
-                            <div className='absolute -top-32 w-[63vh] h-32 border overflow-y-scroll rounded px-2 space-y-2 py-4 '>
+                            <div className='absolute bg-white -top-32 w-[63vh] h-32 border overflow-y-scroll rounded px-2 space-y-2 py-4 '>
                                 {
                                     PartialSubmission.Students.map((item)=>(
                                         <div className='bg-purple-100 text-md border px-3 py-2 rounded flex items-center gap-2 hover:bg-purple-200' onClick={()=>{settext(item.name) ,settagUser(false)}}>
@@ -905,9 +1006,7 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
             </div>
 
         </div>
-        <Modal
-           
-        >
+        <Modal>
         </Modal>
     </div>
     

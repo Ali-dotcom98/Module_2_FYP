@@ -12,6 +12,7 @@ const DisplayQuestion = ({item , index ,updateArrayItemInstructor, updateArrayIt
             case "short_answer":
                 return (
                     <ShortAnswers
+                    
                         item={item}
                         index={index}
                         type ={"Students"}
