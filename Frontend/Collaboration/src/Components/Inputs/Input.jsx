@@ -19,7 +19,7 @@ const Input = ({ value, onchange, label, placeholder, type , disabled }) => {
           type={type === "password" ? (showPassword ? "text" : "password") : type}
           disabled={disabled}
           placeholder={placeholder}
-          className="p-3 pr-10 bg-slate-50 outline-none rounded-md w-full"
+          className="p-3 pr-10 bg-slate-50 border outline-none rounded-md w-full"
           value={value}
           onChange={(e) => onchange(e)}
           autoComplete={type === "email" ? "email" : "on"} 
