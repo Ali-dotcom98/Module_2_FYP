@@ -18,7 +18,7 @@ route.post("/Create", Protect, async (req, res) => {
             feedback: "",
             SubmissionVote: null,
             thumbnail: "",
-
+            messages: [],
         });
 
         if (existing) {
@@ -41,16 +41,20 @@ route.post("/Create", Protect, async (req, res) => {
 route.get("/Save/:id", Protect, async (req, res) => {
     try {
         const { id } = req.params;
+
         const result = await PartialSubmission_Model.findOne({
             assignmentId: id,
             Students: { $elemMatch: { _id: req.user._id } }
-        }).populate("Questions.lockedby");
+        })
+            .populate("Questions.lockedby")
+            .select("-messages");
+
         res.status(200).json(result);
     } catch (error) {
-        console.error("Error in /Partial/Save:", error);
         res.status(500).json({ message: error.message });
     }
 });
+
 
 
 route.put("/Update/:id", Protect, async (req, res) => {
@@ -210,7 +214,7 @@ route.put("/SaveThumbnail/:id", async (req, res) => {
 
         const response = await PartialSubmission_Model.findOneAndUpdate(
             { _id: id },
-            { $set: { thumbnail } }, // ✅ Save URL directly
+            { $set: { thumbnail } },
             { new: true }
         );
 
@@ -268,4 +272,51 @@ route.put("/:id/upload-image", (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 })
+
+route.put("/SaveMessage/:id", Protect, async (req, res) => {
+    try {
+        const ID = req.params.id;
+        const { messages } = req.body;
+        const response = await PartialSubmission_Model.findOneAndUpdate(
+            { _id: ID },
+            { $set: { messages: messages } },
+            { new: true }
+        );
+        res.send(response)
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+})
+
+
+route.get("/SaveMessage/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const limit = parseInt(req.query.limit) || 20;
+        const page = parseInt(req.query.page) || 1;
+
+        const partial = await PartialSubmission.findById(id);
+
+        if (!partial) {
+            return res.status(404).json({ error: "PartialSubmission not found" });
+        }
+        const totalMessages = partial.messages.length;
+
+        const messages = [...partial.messages]
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            .slice((page - 1) * limit, page * limit)
+            .reverse();
+
+        res.json({
+            messages,
+            totalMessages,
+            hasMore: page * limit < totalMessages,
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 module.exports = route;
