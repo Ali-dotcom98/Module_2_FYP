@@ -67,8 +67,9 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("sendMessage", ({ SocketGroup, User, message }) => {
-        io.to(SocketGroup).emit("receiveMessage", User, message);
+    socket.on("sendMessage", ({ SocketGroup, User, message, PartialSub }) => {
+
+        io.to(SocketGroup).emit("receiveMessage", User, message, PartialSub);
     });
 
     socket.on("Typing", (SocketGroup, User, Flag) => {
