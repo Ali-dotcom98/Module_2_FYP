@@ -57,12 +57,6 @@ export const SIDE_MENU_DATA_User = [
     },
     {
         id: "03",
-        label: "LeaderBoard ",
-        icon: LucideBarChart2,
-        path: "/Student/Leaderboard",
-    },
-    {
-        id: "03",
         label: "Logout",
         icon: LuLogOut,
         path: "logout",
