@@ -1,23 +1,47 @@
-import React from 'react'
-
-import { FaCode } from 'react-icons/fa'
+import React from "react";
+import { FaSearch, FaBell, FaUserCircle } from "react-icons/fa"
+import { LuBell } from "react-icons/lu"
+import { UserContext } from "../ContextApi/UserContext";
+import { useContext } from "react";
 
 const NavBar = () => {
+  const {User} = useContext(UserContext)
   return (
-    <div className='font-urbanist border-b flex items-center justify-between px-5 py-2 border'>
-      <h1 className='font-semibold flex items-center justify-center gap-2'>  <FaCode className="size-4" />Supported Languages</h1>
-      <div className='flex gap-2'>
-        {/* {
-          LanguageIcons.map((item)=>(
-            <div className='flex items-center justify-between gap-2 text-[12px] font-semibold text-purple-800 bg-purple-600/15 border hover:-rotate-12 border-purple-400 px-3 py-1 rounded-2xl cursor-pointer'>
-              <img src={item.icons} className='w-3' alt="" />
-              <span className=''>{item.label}</span>
-            </div>
-          ))
-        } */}
+    <nav className="font-urbanist shadow-sm border-b flex items-center justify-between px-6 py-3">
+      {/* Left: Logo */}
+      <div className="flex items-center gap-2">
+        <span className="text-lg font-semibold italic text-purple-600 tracking-wider">CollabAssign</span>
       </div>
-    </div>
-  )
-}
 
-export default NavBar
+      {/* Center: Links */}
+    
+
+      {/* Right: Search, Notifications, Profile */}
+      <div className="flex items-center gap-4">
+        {/* Search */}
+        <div className="relative flex  sm:block">
+          <input 
+            type="text" 
+            placeholder="Search..." 
+            className="w-full text-sm text-black outline-none pl-8  bg-white border border-slate-300 px-2.5 py-1 rounded-md  placeholder:text-gray-500 focus-within:border-purple-300"
+          />
+          <FaSearch className="absolute left-3 top-1.5 text-gray-400" />
+        </div>
+
+        {/* Notifications */}
+        <button className="relative text-gray-600 hover:text-indigo-600">
+          <LuBell size={20} />
+          <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+        </button>
+
+        {/* Profile */}
+        <div className="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
+          <FaUserCircle size={22} className="text-purple-500" />
+          <span className="hidden sm:block font-medium">{User.name}</span>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default NavBar;

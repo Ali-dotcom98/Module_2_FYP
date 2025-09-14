@@ -20,7 +20,7 @@ const Modal = ({
     <div className="font-urbanist fixed inset-0 z-50 flex justify-center items-center w-full h-full round bg-black/40">
       <div className={`relative bg-white flex flex-col   shadow-lg rounded-lg  ${type == "Banner" ? "w-[39vw] h-[50vh] overflow-hiddn": type=="Confirmation"?"w-[45vw] h-[60vh] overflow-hiddn" : type ==="Groups" ?"w-[60vw] h-[95vh] overflow-y-scroll": type === "small"?"w-[39vw] h-[43vh] overflow-hiddn" :"w-[95vw] h-[105vh] overflow-hiddn"} `}>
 
-        {/* Header */}
+        
         {!hideHeader && (
           <div className="flex items-center justify-between p-4 border-b border-gray-200 ">
             <h3 className="md:text-lg font-medium text-gray-900">{title}</h3>
@@ -36,7 +36,7 @@ const Modal = ({
           </div>
         )}
 
-        {/* Close Button */}
+       
         <button
           onClick={onClose}
           type="button"
@@ -59,7 +59,6 @@ const Modal = ({
           </svg>
         </button>
 
-        {/* Body */}
         <div className="flex-1 py-2">
           {children}
         </div>

@@ -12,10 +12,14 @@ import {
 const AssingmentChart = ({data}) => {
   return (
     <ResponsiveContainer>
-        <BarChart data={data}>
+        <BarChart 
+          barCategoryGap="25%"   
+          barGap={30}
+          margin={{ left: -10  }}
+          data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} tickMargin={20}  />
             <Tooltip
                 formatter={(value) => [`${value} assignments`, "Count"]}
                 labelFormatter={(label) => `Date: ${label}`}
