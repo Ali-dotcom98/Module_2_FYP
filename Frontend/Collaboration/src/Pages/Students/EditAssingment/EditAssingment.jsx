@@ -33,12 +33,15 @@ const EditAssingment = () => {
     const [progress, setprogress] = useState(0)
     const [Join, setJoin] = useState("")
     const [messages, setMessages] = useState([]);
+
+    
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [FetchFlag, setFetchFlag] = useState(false)
     const limit = 10;
 
     
-    console.log(messages);
+    console.log("messages",messages);
     
     const [text, settext] = useState("")
     const [typingUser, settypingUser] = useState("")
@@ -49,7 +52,8 @@ const EditAssingment = () => {
     const [tagUser, settagUser] = useState(false)
     const [PreviewCoverPage, setPreviewCoverPage] = useState(false)
     const [StudentInfo, setStudentInfo] = useState([])
-
+    const [OnlineUsers, setOnlineUsers] = useState([])
+    
     const [DefaultInfo, setDefaultInfo] = useState({
             title : "",
             Instructor : null ,
@@ -248,14 +252,10 @@ const handleReceiveMessage = async (User, text, PartialID) => {
         setdisplayTyping(Flag)
     })
 
-    socket.on("updateOnlineStatus", (onlineUserIds) => {
-        setPartialSubmission(prev => ({
-            ...prev,
-            Students: prev.Students.map(student => ({
-            ...student,
-            online: onlineUserIds.includes(student._id)
-            }))
-        }));
+    socket.on("updateOnlineStatus", (onlineUserIds) => {        
+        setOnlineUsers(onlineUserIds)
+        
+        
 });
 
     socket.on("Answering", (User , CurrentQuestion ,answer,  Flag )=>{
@@ -348,7 +348,7 @@ const handleReceiveMessage = async (User, text, PartialID) => {
 
         
     };
-    }, [AssingmentId, User]);
+    }, [AssingmentId, User ]);
 
 useEffect(() => {
   const totalStudents = PartialSubmission?.Students?.length || 0;
@@ -379,8 +379,11 @@ useEffect(() => {
 }, [voteCount, currentIndex, PartialSubmission?.Students?.length]);
 
 
+// console.log("OnlineUsers",OnlineUsers);
+
 const saveMessages = async (messages, PartialID) => {
   try {
+    setFetchFlag(true);
     await AxiosInstance.put(
       API_PATH.PARTIAL.SAVE_MESSAGE(PartialID),
       { messages }
@@ -390,6 +393,32 @@ const saveMessages = async (messages, PartialID) => {
   }
 };
 
+
+useEffect(() => {
+
+console.log("OnlineUsers",OnlineUsers);
+console.log("PartialSubmission",PartialSubmission);
+
+  setPartialSubmission((prev) => {
+    
+    if (!prev || !prev.Students) return prev;
+
+    const updatedStudents = prev.Students.map((item) => {
+      const isOnline = OnlineUsers.includes(item._id);
+      return {
+        ...item,
+        online: isOnline, 
+      };
+    });
+
+    return {
+      ...prev,
+      Students: updatedStudents,
+    };
+  });
+}, [PartialSubmission._id]);
+
+
 const fetchMessages = async (pageNum = 1) => {
   try {
     const res = await AxiosInstance.get(
@@ -398,23 +427,22 @@ const fetchMessages = async (pageNum = 1) => {
     setMessages((prev) => [...res.data.messages, ...prev]);
     setHasMore(res.data.hasMore);
   } catch (err) {
-    console.error("Failed to fetch messages:", err);
+    console.log("err", err);
+    
   }
 };
 
 useEffect(() => {
-    if(PartialSubmission)
-    {
-        fetchMessages(1);
-    }
-  
-}, [PartialSubmission]);
+  if (PartialSubmission) {
+    setMessages([]);
+    fetchMessages(1);
+  }
+}, [PartialSubmission?._id]);
 
 const handleScroll = async (e) => {
   const el = e.target;
   if (isFetching || !hasMore) return;
 
-  // At the top? Fetch older messages
   if (el.scrollTop <= 0) {
     setIsFetching(true);
 
@@ -422,7 +450,7 @@ const handleScroll = async (e) => {
     await fetchMessages(page + 1);
     setPage((prev) => prev + 1);
 
-    // Maintain scroll position after prepend
+    
     requestAnimationFrame(() => {
       const newHeight = el.scrollHeight;
       el.scrollTop = newHeight - prevHeight;
@@ -757,14 +785,16 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
 
     },[PreviewCoverPage])
 
-    const MessageBYWhom = (Id)=>{
-      
-        const Person = StudentInfo.find((item)=> item._id == Id);
- 
-        
-        return Person.name.slice(0,2)
+
+const MessageBYWhom = (Id, Flag) => {
+    const person = StudentInfo?.find((item) => item._id === Id);
+    if (!person) {
+        return 
     }
-    
+
+    return Flag === "Fullname" ? person.name : person.name.slice(0, 2);
+};
+
 
     return (
     <div className=" px-5 py-4 font-urbanist flex gap-3 ">
@@ -820,9 +850,19 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                             <div className='border border-dashed rounded-md border-purple-300 flex items-center justify-between  px-3 gap-3 py-2'>
                                 
                                 <div className='w-full flex flex-col p-1 '>
-                                    <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1">
-                                        Refinement Votes:
-                                    </label>
+                                    <div className='flex gap-3'>
+                                        <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1 ">
+                                            Refinement Votes:
+                                        </label>
+                                        <div className='w-fit flex  text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md space-x-1 '>
+                                            {
+                                                PartialSubmission.Questions[currentIndex].vote.map((item,index)=>(
+                                                    <div>{MessageBYWhom(item , "Fullname")}</div>
+                                          
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
                                     <div className='flex items-center justify-between gap-4'>
                                         <div             
                                             className={ `h-0.5 w-full bg-gradient-to-r from-purple-500 to-purple-700 transition-all duration-300`}
@@ -933,14 +973,14 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                             key={index}
                             className={`relative mb-2 mt-3 max-w-xs px-3 py-2 rounded-lg flex justify-between gap-3 ${
                             item.User === User._id
-                                ? "ml-auto bg-purple-100 text-left "
+                                ? "ml-auto bg-purple-200/60 text-left "
                                 : "mr-auto bg-gray-200 text-left"
                             }`}
                         >   
                             {
                                 (
                                     <div className='bg-white rounded-full size-10 px-3 flex items-center justify-center'>
-                                        <p className='text-center'>{MessageBYWhom(item.User)}</p>
+                                        <p className='text-center'>{MessageBYWhom(item.User )}</p>
                                     </div>
                                 )
                             }
@@ -998,7 +1038,7 @@ const UpdatePartiallAssingment =async (thumbnail)=>{
                     }
                     <button
                     type="submit"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md text-purple-800"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md text-purple-800  focus:outline-purple-500"
                     >
                     <Send className="w-5 h-5" />
                     </button>
