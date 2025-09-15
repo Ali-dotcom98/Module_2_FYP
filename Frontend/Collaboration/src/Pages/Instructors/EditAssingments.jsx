@@ -566,7 +566,7 @@ const RenderForm = () => {
                         <div className="relative   flex items-center justify-center">
                             <div className=' p-2 rounded-md  text-purple-800 bg-purple-600/15 border border-purple-200 hover:border-purple-400'>
                                 <LuCheck className="peer text-[16px] " />
-                            <p className="absolute w-full border top-0 bg-purple-200 rounded-md px-1 py-0.5 font-medium translate-x-8 ml-2 opacity-0 peer-hover:opacity-100 transition">
+                            <p className="absolute z-50 w-full border top-0 bg-purple-200 rounded-md px-1 py-0.5 font-medium translate-x-8 ml-2 opacity-0 peer-hover:opacity-100 transition">
                                 True / False
                             </p>
                             </div>
