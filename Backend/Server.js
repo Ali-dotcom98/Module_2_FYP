@@ -25,7 +25,7 @@ io.on("connection", (socket) => {
     socket.on("joinGroup", async ({ assignmentId, User }) => {
 
         onlineUsers[User._id] = socket.id;
-        io.emit("updateOnlineStatus", Object.keys(onlineUsers));
+        socket.emit("updateOnlineStatus", Object.keys(onlineUsers));
 
 
         const assignment = await Assingment_Model.findById(assignmentId);
@@ -44,13 +44,13 @@ io.on("connection", (socket) => {
         const groupName = `${assignmentId}-group-${groupIndex}`;
         socket.join(groupName);
 
-        // Tell everyone else that user joined
+
         socket.to(groupName).emit("userJoined", {
             name: User.name,
             groupId: groupName
         });
 
-        // Also tell the joining user their group
+
         socket.emit("userJoined", {
             name: User.name,
             groupId: groupName,
