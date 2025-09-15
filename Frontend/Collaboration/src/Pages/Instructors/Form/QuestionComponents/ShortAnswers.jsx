@@ -35,7 +35,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
     
   return (
     <>
-        <div className=' border border-dashed border-purple-300 px-3 py-2  rounded-md overflow-y-scroll'>
+        <div className=' border border-dashed border-purple-300 px-3 py-2  rounded-md '>
             <div className="col-span-2 mt-3 ">
                 <div className='flex items-center justify-between'>
                     <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1">
