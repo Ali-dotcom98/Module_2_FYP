@@ -1,60 +1,70 @@
-import React from 'react'
-import AxiosInstance from '../../../Utility/AxiosInstance'
-import { API_PATH } from '../../../Utility/ApiPath'
-import { useState } from 'react'
-import { useEffect } from 'react'
-import AssinmentCard from '../../../Components/Cards/AssinmentCard'
-import moment from 'moment'
-import { useNavigate } from 'react-router-dom'
-import NoFound from '../../../Components/NotFound/NotFound'
+import React, { useEffect, useState } from 'react';
+import AxiosInstance from '../../../Utility/AxiosInstance';
+import { API_PATH } from '../../../Utility/ApiPath';
+import AssinmentCard from '../../../Components/Cards/AssinmentCard';
+import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
+import NoFound from '../../../Components/NotFound/NotFound';
 
-const Dasboard = () => {
-  const [data, setdata] = useState([])
-  console.log(data);
-  
+const Dashboard = () => {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const fetchAssingment = async()=>{
-    const result = await AxiosInstance.get(API_PATH.ASSIGN.STUDENTASSINGMENTS);
-    if(result.data){
-      setdata(result.data);
+  const fetchAssignments = async () => {
+    try {
+      setIsLoading(true)
+      const result = await AxiosInstance.get(API_PATH.ASSIGN.STUDENTASSINGMENTS);
+      if (result.data) {
+        setData(result.data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false); 
     }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="font-urbanist text-center py-10">
+        Loading...
+      </div>
+    );
   }
 
-  useEffect(()=>{
-    fetchAssingment();
-  },[])
-  return (
-      <>
-        {
-          !data.length == 0 ? (
-            <>
-              <div className="font-urbanist grid grid-cols-1 md:grid-cols-5 md:gap-4 pt-1 pb-6 px-4 md:px-0 min-h-screen">
-                  {data?.map((Assingment) => (
-                  <AssinmentCard
-                      key={Assingment?._id}
-                      tag ="Edit"
-                      imgurl={Assingment?.thumbnail || null}
-                      title={Assingment?.title || "Untitled Resume"}
-                      lastUpdated={
-                      Assingment?.updatedAt
-                          ? moment(Assingment.updatedAt).format("Do MMM YYYY")
-                          : "Unknown"
-                      }
-                      onselect={() => navigate(`/CollaborationPannel/${Assingment._id}` )}
-                  />
-                  ))}
-              </div>
-            </>
-          ):
-          (
-            <div className='font-urbanist'>
-              <NoFound/>
-            </div>
-          )
-        }
-      </>
-  )
-}
 
-export default Dasboard
+  if (data.length === 0) {
+    return (
+      <div className="font-urbanist">
+        <NoFound />
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="font-urbanist grid grid-cols-1 md:grid-cols-5 md:gap-4 pt-1 pb-6 px-4 md:px-0 min-h-screen">
+      {data.map((assignment) => (
+        <AssinmentCard
+          key={assignment?._id}
+          tag="Edit"
+          imgurl={assignment?.thumbnail || null}
+          title={assignment?.title || 'Untitled Resume'}
+          lastUpdated={
+            assignment?.updatedAt
+              ? moment(assignment.updatedAt).format('Do MMM YYYY')
+              : 'Unknown'
+          }
+          onselect={() => navigate(`/CollaborationPannel/${assignment._id}`)}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default Dashboard;
