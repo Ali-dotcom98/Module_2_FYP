@@ -68,6 +68,7 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
     return;
 
   let updatedGroups = [...groupsDetails]; 
+  let updatedPool = [...studentPool]
   let movedStudent;
 
   
@@ -205,7 +206,7 @@ useEffect(() => {
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 my-3'>
             <div className='flex flex-col  '>
                 <label htmlFor=""  className="font-medium">Visibility</label>
-                <select value={visibility} onChange={({target})=>UpdateSection(null , "visibility",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md border'  name="" id="">
+                <select value={visibility} onChange={({target})=>UpdateSection(null , "visibility",target.value)} className='p-3 bg-slate-50 relative outline-none rounded-md border z-10'  name="" id="">
                     <option value="public">Public</option>
                     <option value="private">Private</option>
                 </select>
@@ -269,13 +270,13 @@ useEffect(() => {
             <div className="flex w-full h-full">
               {assignmentMode === "random" && (
                 <div className="w-full">
-                  <div className={`flex flex-col space-y-4 mt-5 h-full min-w-max`}>
+                  <div className={`flex flex-col space-y-4 mt-3 h-full min-w-max`}>
                     {groupedStudents.map((grp, index) => (
                       <div
                         key={index}
                         className="col-span-1 bg-purple-50 mx-5 rounded-2xl shadow-md p-4 min-w-[220px] transition hover:shadow-lg"
                       >
-                        <h1 className="text-lg font-semibold bg-purple-400 dark:text-gray-100 mb-3 border-b  p-2 rounded-md">
+                        <h1 className="text-md font-semibold bg-purple-300  mb-3 border-b  p-2 rounded-md">
                           Group {index + 1}
                         </h1>
                         {grp.map((st, i) => (
@@ -311,7 +312,7 @@ useEffect(() => {
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className="border mx-5  border-purple-300 bg-purple-400 rounded-2xl p-4 w-1/4 overflow-y-auto flex flex-col justify-between shadow-md"
+          className="border mx-5  border-purple-300 bg-purple-300 rounded-2xl p-4 w-1/4 overflow-y-auto flex flex-col justify-between shadow-md"
         >
           <div>
             <h2 className="text-lg font-semibold  text-white  mb-3 border-b pb-2">
@@ -339,7 +340,7 @@ useEffect(() => {
               onClick={() => HandleSave("Instructor")}
               className={`px-4 py-2 rounded-xl shadow transition-colors duration-200 ${
                 studentPool.length === 0
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-white text-gray-600 hover:bg-slate-200"
                   : "bg-gray-300 text-gray-600 cursor-not-allowed"
               }`}
               disabled={studentPool.length > 0}
