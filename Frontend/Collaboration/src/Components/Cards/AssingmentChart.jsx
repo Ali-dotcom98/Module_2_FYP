@@ -13,12 +13,13 @@ const AssingmentChart = ({data}) => {
   return (
     <ResponsiveContainer>
         <BarChart 
-          barCategoryGap="25%"   
-          barGap={30}
+          
+          barCategoryGap="75%"   
+          barGap={20}
           margin={{ left: -10  }}
           data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+            <XAxis  dataKey="date" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} tickMargin={20}  />
             <Tooltip
                 formatter={(value) => [`${value} assignments`, "Count"]}
@@ -31,7 +32,7 @@ const AssingmentChart = ({data}) => {
             dataKey="count"
             fill="#6c63ff"
             radius={[6, 6, 0, 0]}
-            barSize={35}
+             barSize={Math.max(20, 80 - data.length * 2)} 
             />
         </BarChart>
     </ResponsiveContainer>

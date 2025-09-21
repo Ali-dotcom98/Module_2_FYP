@@ -1,8 +1,9 @@
 import { Edit } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { UserContext } from '../../ContextApi/UserContext';
 
-const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray , ID , tag}) => {  
-    console.log(tag);
+const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray ,dueDate, ID , tag}) => {  
+    const {User} =useContext(UserContext)
     
     return(
         <div
@@ -38,7 +39,10 @@ const AssinmentCard = ({ imgurl, title, lastUpdated, onselect, DeletedArray , ID
             <div className='w-full bg-white px-4 py-3'>
                 <h3 className="text-sm font-medium truncate overflow-hidden whitespace-nowrap">{title}</h3>
                 {
-                    tag && <p className="text-xs font-medium text-gray-500 mt-0.5">Due Date :  {lastUpdated}</p>
+                    User.status == "Instructor" ?
+                    <p className="text-xs font-medium text-gray-500 mt-0.5">Last Update :  {lastUpdated}</p>
+                    :
+                    <p className="text-xs font-medium text-gray-500 mt-0.5">Due Date :  {dueDate}</p>
 
                 }
             </div>
