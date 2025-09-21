@@ -84,12 +84,13 @@ const TrueFalse = ({
         onChange={(e) => UpdateItemInArray(index, "questionText", e.target.value)}
       />
 
-      {/* True/False Options */}
+   
       <div className="flex gap-4 mt-3">
         {["True", "False"].map((value) => (
           <label key={value} className="flex items-center gap-1 text-sm">
             <input
               type="radio"
+              className="accent-purple-600"
               name={`true_false_${item.id || index}`}
               checked={item.answer === value}
               disabled={

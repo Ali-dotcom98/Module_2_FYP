@@ -25,24 +25,24 @@ const CreateAssinmentForm = () => {
 
   return (
     <div className="font-urbanist w-[90vw] md:w-[39vw] px-6 flex flex-col justify-center ">
-      <h3 className="text-lg font-semibold text-black">Create New Assingments</h3>
+      <h3 className="text-lg font-semibold text-black">Create New Assingment</h3>
       <p className="text-xs text-slate-700 mt-[5px] mb-3">
-        Give your competition a title to get started. You can edit all details later.
+        Give your Assingment   a title to get started. You can edit all details later.
       </p>
 
       <form onSubmit={handleCreateChallenge}>
         <Input
           value={Title}
           onchange={(e) => setTitle(e.target.value)}
-          label="Problem Title"
-          placeholder="e.g., Palindrome Checker"
+          label="Assingment Title"
+          placeholder="e.g. Basic of Data Structure"
           type="text"
         />
 
         {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
         <button type="submit" className="btn-primary">
-          Create Challenge
+          Create Assingment
         </button>
       </form>
     </div>

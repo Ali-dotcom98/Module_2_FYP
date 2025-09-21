@@ -196,7 +196,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                 Once saved, it cannot be rewritten unless others vote to unlock it.
                 </p>
 
-                <div className="flex justify-end space-x-3  translate-y-3">
+                <div className="flex justify-end space-x-3 translate-y-0  sm:translate-y-3">
                 <button
                     className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
                     onClick={() => setConfirmSave(false)}
@@ -204,7 +204,7 @@ const ShortAnswers = ({item , removeQuestion, index , UpdateItemInArray,updateAr
                     Cancel
                 </button>
                 <button
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                    className=" px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                    onClick={() => (setConfirmSave(false), HandleSave())}
                 >
                     Save Answer

@@ -264,7 +264,7 @@ const HandleSave = async () => {
                             <div>
                                 <button
     
-                                    className={`btn-small flex items-center gap-2 ${currentIndex === PartialSubmission.Questions.length - 1 ? "cursor-none opacity-50" : ""}`}
+                                    className={`btn-small-light flex items-center gap-2 ${currentIndex === PartialSubmission.Questions.length - 1 ? "cursor-none opacity-50" : ""}`}
                                     onClick={handleNext}
                                     disabled={currentIndex === PartialSubmission.Questions.length - 1}
                                     

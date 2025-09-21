@@ -95,6 +95,7 @@ const MultipleChoice = ({
                   <input
                     type="radio"
                     name={`mcq_${item.id}`}
+                    className="accent-purple-600"
                     checked={Number(item.answer)=== idx}
                     // onChange={() => UpdateItemInArray(index, "answer", idx)}
                   />

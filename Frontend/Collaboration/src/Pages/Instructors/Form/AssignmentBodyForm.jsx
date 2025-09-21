@@ -57,7 +57,7 @@ const AssignmentBodyForm = ({questions , addQuestion , removeQuestion ,UpdateIte
 
   return (
     <div className='px-5 pt-5 min-h-[32vw] space-y-5'>
-        <div>AssignmentBodyForm</div>
+        <div className='text-lg  font-semibold text-gray-900'>Assignment Body </div>
         {
             questions.map((item , index)=>(
                 RenderTypeOfComponents(item.type , item ,index)

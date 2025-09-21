@@ -58,6 +58,7 @@ const CreateAssingment = () => {
             key={challenge?._id}
             imgurl={challenge?.thumbnail || null}
             title={challenge?.title || "Untitled Resume"}
+            dueDate ={challenge?.dueDate || null}
             lastUpdated={
               challenge?.updatedAt
                 ? moment(challenge.updatedAt).format("Do MMM YYYY")
@@ -106,7 +107,7 @@ const CreateAssingment = () => {
       {/* Modal */}
       <Modal
         isOpen={openCreateModal}
-        title={"Add Competition"}
+        title={"Add Assingment"}
         onClose={() => setOpenCreateModal(false)}
         type="Banner"
       >

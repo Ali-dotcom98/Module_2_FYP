@@ -349,7 +349,7 @@ const RenderForm = () => {
     }
 
     if (errors.length > 0) {
-        seterrorMsg(errors[0]); // Show the first error
+        seterrorMsg(errors[0]); 
     } else {
         seterrorMsg("");
         Next();
@@ -366,8 +366,10 @@ const RenderForm = () => {
 
     useEffect(()=>{
         const TotalMarks = DefaultInfo.questions.reduce((count,item)=>{
-            return count = count+ (item.marks || 0)
+            return count = count+ (Number(item.marks) || 0)
         },0)
+        console.log("TotalMarks",TotalMarks);
+        
 
         setDefaultInfo((prev)=>(
             {
@@ -636,8 +638,10 @@ const RenderForm = () => {
                         {isLoading ? "Updating..." : "Save & Exit"}
                     </button>
 
-                        <button
-                            className="btn-small flex items-center gap-2"
+                        {
+                            currentPage != "settings" && (
+                                 <button
+                            className="btn-small-light flex items-center gap-2 border"
                             onClick={validateAndNext}
                             disabled={isLoading}
                         >
@@ -649,11 +653,13 @@ const RenderForm = () => {
                             ) : (
                             <>
                                 <LuArrowLeft className="text-[16px] rotate-180" />
-
                                 Next
                             </>
                             )}
                         </button>
+                            )
+                        }
+                       
                         </div>
 
                     </div>
@@ -672,7 +678,7 @@ const RenderForm = () => {
         <Modal
             isOpen = {DeleteModel}
             onClose = {()=> setDeleteModel((prev)=>!prev)}
-            title={`DeleteCompetition`}
+            title={`Delete Assingment`}
             type={"small"}
         >
             <DeleteCard 
