@@ -65,7 +65,7 @@ const Login = () => {
   }
   return (
     <div className='font-urbanist w-full border  h-screen  flex flex-col justify-center items-center'>
-        <div className='border w-[90vh] p-7'>
+        <div className='border w-[90vh] p-7'> 
           <h3 className='text-lg font-semibold text-black'>Welcome Back</h3>
         <p className='text-xs text-slate-700 mt-[5px] mb-6'>Please Enter your detail to log in</p>
         <form onSubmit={handleForm}>
