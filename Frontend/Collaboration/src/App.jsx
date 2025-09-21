@@ -13,12 +13,15 @@ import MyPerformance from './Pages/Students/MyPerformance/MyPerformance';
 import Evaluation from "./Pages/Instructors/AssingmentEvaluation/SubmittedAssingments"
 import StudentsAssingments from './Pages/Instructors/AssingmentEvaluation/StudentsAssingments';
 import EvaluationPage from './Pages/Instructors/AssingmentEvaluation/EvaluationPage';
+import LandingPage from './Pages/Auth/LandingPage';
+
 const App = () => {
   return (
     <UserProvider>
       <Router>
         <Routes>
-            <Route index element={<Navigate to={"Login"}/>}/>
+            
+            <Route path="/" element={<LandingPage/>} />
             <Route path="/Login" element={<Login/>} />
           
             <Route path="/Instructor"
