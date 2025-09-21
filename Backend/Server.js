@@ -118,8 +118,6 @@ io.on("connection", (socket) => {
     })
 
     socket.on("SubmissionVote", async (SocketGroup, User, AssingmentId, UpdateSubmission) => {
-        console.log("UpdateSubmission.SubmissionVote", UpdateSubmission.SubmissionVote);
-        console.log((UpdateSubmission.SubmissionVote).length)
 
         if ((UpdateSubmission.SubmissionVote).length >= 2) {
             socket.to(SocketGroup).emit("UpdateSubmissionVote", User, true)
