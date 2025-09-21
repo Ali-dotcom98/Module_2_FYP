@@ -104,13 +104,13 @@ return (
                         You’ll need to log in again to access your account.
                     </p>
                     </div>
-                    <div className="flex items-center justify-center gap-4">
-                    <button
-                        onClick={handleLogout}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-                    >
-                        Yes, Log Out
-                    </button>
+                    <div className="flex w-full border items-center justify-center gap-4">
+                        <button
+                            onClick={handleLogout}
+                            className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                        >
+                            Yes, Log Out
+                        </button>
                     </div>
                 </div>
             </div>
