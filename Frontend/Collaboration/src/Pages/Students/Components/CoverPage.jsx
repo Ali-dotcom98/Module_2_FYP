@@ -27,13 +27,13 @@ const CoverPage = ({DefaultInfo ,Students ,SubmittedTo}) => {
             </ol>
             
           </p>
-          <p className='text-gray-600 font-medium mt-4'>
+          {/* <p className='text-gray-600 font-medium mt-4'>
             <h1 className='text-md font-medium  text-gray-800'>Submitted to :</h1>
             <p className='w-full  p-3 flex items-center justify-center space-x-3'>
                 <p>{SubmittedTo.email}</p>
                 <h1>{SubmittedTo?.name}</h1>
             </p>
-        </p>
+        </p> */}
         </div>
       </div>
 

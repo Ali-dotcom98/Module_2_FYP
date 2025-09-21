@@ -55,6 +55,7 @@ const Dashboard = () => {
           tag="Edit"
           imgurl={assignment?.thumbnail || null}
           title={assignment?.title || 'Untitled Resume'}
+          dueDate={moment(assignment?.dueDate).format('Do MMM YYYY')}
           lastUpdated={
             assignment?.updatedAt
               ? moment(assignment.updatedAt).format('Do MMM YYYY')

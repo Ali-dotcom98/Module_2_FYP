@@ -314,16 +314,24 @@ const handleReceiveMessage = async (User, text, PartialID) => {
         })
     })
 
-    socket.on("UpdateSubmissionVote", (User , Redirect)=>{
-        if(Redirect)
-        {
-            navigator("/Student")
+    socket.on("UpdateSubmissionVote", (User, Redirect) => {
+        if (Redirect) {
+            navigator("/Student");
         }
-        setPartialSubmission((prev)=>({
+
+        setPartialSubmission((prev) => {
+                
+            const alreadyVoted = prev.SubmissionVote.includes(User._id);
+
+            return {
             ...prev,
-            SubmissionVote : [...prev.SubmissionVote , User._id]
-        }))
-    })
+            SubmissionVote: alreadyVoted
+                ? prev.SubmissionVote
+                : [...prev.SubmissionVote, User._id],
+            };
+        });
+    });
+
 
     socket.on("ResetVotesArray", ()=>{
     
@@ -694,21 +702,32 @@ const VerifyVote = ()=>{
     return isexit
 }
 
-const ManageSubmission = ()=>{
-    const AnswerAll = PartialSubmission.Questions.every((item)=>item.answer.trim() != "")
-    if (AnswerAll == false)
-        return seterrorMsg("All Questions Should be Answered")
-        setPartialSubmission((prev)=>{
-            const updateArray = {
-                ...prev ,
-                SubmissionVote : [...prev.SubmissionVote , User._id]
-            }
-        socket.emit("SubmissionVote", SocketGroup , User, AssingmentId, updateArray)
-        return updateArray 
-    })
-    
+const ManageSubmission = () => {
+  const AnswerAll = PartialSubmission.Questions.every(
+    (item) => item.answer.trim() !== ""
+  );
 
-}   
+  if (!AnswerAll) {
+    return seterrorMsg("All Questions Should be Answered");
+  }
+
+  setPartialSubmission((prev) => {
+
+    const alreadyVoted = prev.SubmissionVote.includes(User._id);
+
+    const updateArray = {
+      ...prev,
+      SubmissionVote: alreadyVoted
+        ? prev.SubmissionVote
+        : [...prev.SubmissionVote, User._id],
+    };
+
+    socket.emit("SubmissionVote", SocketGroup, User, AssingmentId, updateArray);
+
+    return updateArray;
+  });
+};
+  
 const VerifySubmission =()=>{
     const isexit = PartialSubmission.SubmissionVote.includes(User._id);
     return isexit
@@ -825,8 +844,10 @@ const MessageBYWhom = (Id, Flag) => {
             <div className="h-[95vh]  bg-white col-span-2 rounded-lg border border-purple-200 overflow-hidden relative">
                 <div className="flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-3 px-4  my-3 mx-2">
                     <h1>{DefaultInfo.title}</h1>
-                    <div>
-                        <p>0/{DefaultInfo.questions.length}</p>
+                    
+                    <div className='flex gap-2 font-medium "w-fit text-[12px] text-white bg-[#6c63ff] px-3 py-1 rounded '>
+                        <p>Total Questions :</p>
+                        <p>{DefaultInfo.questions.length}</p>
                     </div>
                 </div>  
                     
@@ -854,14 +875,18 @@ const MessageBYWhom = (Id, Flag) => {
                                         <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1 ">
                                             Refinement Votes:
                                         </label>
-                                        <div className='w-fit flex  text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md space-x-1 '>
+                                        {
+                                            PartialSubmission?.Questions[currentIndex]?.vote.length != 0 && (
+                                                <div className='w-fit flex  text-sm text-gray-500 italic px-2 py-1 bg-gray-100 rounded-md space-x-1 '>
                                             {
-                                                PartialSubmission.Questions[currentIndex].vote.map((item,index)=>(
+                                                PartialSubmission?.Questions[currentIndex]?.vote.map((item,index)=>(
                                                     <div>{MessageBYWhom(item , "Fullname")}</div>
-                                          
+                                        
                                                 ))
                                             }
                                         </div>
+                                            )
+                                        }
                                     </div>
                                     <div className='flex items-center justify-between gap-4'>
                                         <div             
@@ -910,7 +935,7 @@ const MessageBYWhom = (Id, Flag) => {
                                     ?(
                                         <>
                                             <button
-                                            className="btn-small flex items-center gap-2"
+                                            className="btn-small-light flex items-center gap-2"
                                             onClick={ManageSubmission}
                                             disabled={VerifySubmission()}
                                             >   
@@ -927,7 +952,7 @@ const MessageBYWhom = (Id, Flag) => {
                                     :(
                                         <>
                                             <button
-                                            className="btn-small flex items-center gap-2"
+                                            className="btn-small-light flex items-center gap-2"
                                             onClick={handleNext}
                                             disabled={currentIndex === DefaultInfo.questions.length - 1}
                                             
@@ -943,8 +968,8 @@ const MessageBYWhom = (Id, Flag) => {
                     </div>
                 </div>
             </div>
-            <div className="relative h-[95vh] w-full bg-white rounded-lg shadow flex flex-col">
-                <div className=" flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300 py-2.5 px-4 mx-3 mt-3.5">
+            <div className="relative h-[95vh] w-full bg-white border border-purple-200 rounded-lg shadow flex flex-col">
+                <div className=" flex items-center justify-between gap-5 bg-white rounded-lg border border-purple-300  mt-3 py-3 px-4  my-3 mx-2">
                         
                         <h1 className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-1 rounded flex items-center gap-1 cursor-pointer" onClick={()=>setPreviewCoverPage(true)}> <LuPaperclip className='size-4'/><p>Cover Page</p></h1>
                         <p className='border px-3 py-0.5 text-[14px] rounded relative'>{User.name}
@@ -964,7 +989,7 @@ const MessageBYWhom = (Id, Flag) => {
                 <div 
                     onScroll={handleScroll}
                     ref={containerRef}    
-                    className="flex-1 overflow-y-auto py-3 px-5 bg-white text-sm ">
+                    className="flex-1 overflow-y-auto pb-3 px-5 bg-white text-sm ">
                 
                     {messages.map((item, index) => (
                     <>
@@ -1047,6 +1072,7 @@ const MessageBYWhom = (Id, Flag) => {
 
         </div>
         <Modal>
+            
         </Modal>
     </div>
     
