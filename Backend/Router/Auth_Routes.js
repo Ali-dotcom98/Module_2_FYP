@@ -2,7 +2,6 @@ const express = require("express")
 const bcrypt = require("bcryptjs")
 const routes = express.Router();
 const UserModel = require('../Models/User_Model');
-const e = require("express");
 const { GenerateToken, Protect } = require("../Middleware/TokenMiddleware");
 routes.post("/Login", async (req, res) => {
     try {
