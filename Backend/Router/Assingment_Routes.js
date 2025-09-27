@@ -1,6 +1,7 @@
 const express = require("express");
 const { Protect } = require("../Middleware/TokenMiddleware");
 const Assingment_Model = require("../Models/Assingment_Model");
+const Notification = require("../Models/NotificationModel");
 const User_Model = require("../Models/User_Model");
 const PartialSubmission_Model = require("../Models/PartialSubmission_Model");
 const upload = require("../Middleware/Upload_Middleware");
@@ -61,22 +62,46 @@ route.post("/Create", Protect, async (req, res) => {
 route.put("/Update/:id", Protect, async (req, res) => {
     try {
         const status = req.user.status;
-        if (status == "Student")
-            return res.status(401).json({ message: "Student are Not Allowed" })
+        if (status === "Student")
+            return res.status(401).json({ message: "Students are not allowed" });
 
         const id = req.params.id;
 
-        const Assingment = await Assingment_Model.findOne({ _id: id });
-        if (!Assingment)
-            return res.send("The challenge ID you are looking for does not exist.")
+        // Find the assignment
+        const assignment = await Assingment_Model.findById(id);
+        if (!assignment)
+            return res.status(404).json({ message: "Assignment not found" });
 
-        Object.assign(Assingment, req.body);
-        const savedChallenge = await Assingment.save();
-        res.send(savedChallenge)
+        // Update the assignment
+        Object.assign(assignment, req.body);
+        const savedAssignment = await assignment.save();
+        console.log(savedAssignment);
+
+
+        // Check if assignment is public and notify students
+        if (savedAssignment.settings?.visibility === "public") {
+            const studentIds = savedAssignment.settings?.groupSettings?.groupsDetail?.flat();
+
+            if (studentIds && studentIds.length > 0) {
+                const notifications = studentIds.map(studentId => ({
+                    userId: studentId,
+                    title: "New Assignment Available",
+                    message: `Assignment "${savedAssignment.title}" has been made public.`,
+                    type: "Assignment",
+                }));
+
+                await Notification.insertMany(notifications);
+            }
+        }
+
+
+        res.send(savedAssignment);
+
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-})
+});
 
 route.get("/Assingments", Protect, async (req, res) => {
     try {
