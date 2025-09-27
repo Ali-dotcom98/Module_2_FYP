@@ -51,7 +51,6 @@ return (
             <p className='text-[12px] text-gray-500'>{User.email}</p>
         </div>
 
-        {/* Menu Items */}
         <div className='space-y-2'>
             {SelectData.map((item, index) => {
             if (item.path === "logout") {
