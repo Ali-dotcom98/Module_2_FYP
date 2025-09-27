@@ -169,10 +169,10 @@ io.on("connection", (socket) => {
 
 const AuthRoutes = require("./Router/Auth_Routes.js")
 const AssingmentRoutes = require("./Router/Assingment_Routes.js");
+const NotificationRoutes = require("./Router/NotificationRoutes.js")
 const User_Model = require("./Models/User_Model.js");
 const PartialSubmission = require("./Router/PartialSubmission_Route.js");
 const Assingment_Model = require("./Models/Assingment_Model.js");
-const { log } = require("console");
 const PartialSubmission_Model = require("./Models/PartialSubmission_Model.js");
 const path = require("path")
 app.use(cors({
@@ -183,6 +183,7 @@ app.use(express.json())
 app.use("/Auth", AuthRoutes)
 app.use("/Assign", AssingmentRoutes)
 app.use("/Partial", PartialSubmission)
+app.use("/Notifications", NotificationRoutes)
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'),
     {
