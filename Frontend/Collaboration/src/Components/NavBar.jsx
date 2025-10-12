@@ -3,6 +3,7 @@ import { FaSearch, FaUserCircle } from "react-icons/fa";
 import { LuBell } from "react-icons/lu";
 import { UserContext } from '../ContextApi/UserContext';
 import AxiosInstance from "../Utility/AxiosInstance";
+import { FaRegFileAlt, FaRegCommentDots, FaCogs, FaBell } from "react-icons/fa"; 
 
 const NavBar = () => {
   const { User } = useContext(UserContext);
@@ -59,13 +60,17 @@ const NavBar = () => {
   }, []);
 
   const getNotificationIcon = (type) => {
-    switch(type) {
-      case "Assignment": return "📄";
-      case "Message": return "💬";
-      case "System": return "⚙️";
-      default: return "🔔";
-    }
-  };
+  switch (type) {
+    case "Assignment":
+      return <FaRegFileAlt className="text-gray-600" size={20} />;
+    case "Message":
+      return <FaRegCommentDots className="text-gray-600" size={20} />;
+    case "System":
+      return <FaCogs className="text-gray-600" size={20} />;
+    default:
+      return <FaBell className="text-gray-600" size={20} />;
+  }
+};
 
   return (
     <nav className="font-urbanist shadow-sm border-b flex items-center justify-between px-6 py-3 bg-white">
@@ -98,10 +103,10 @@ const NavBar = () => {
           </button>
 
           {showDropdown && (
-            <div className="absolute -right-16  mt-3 w-96 bg-white border shadow-lg rounded-lg z-50 flex flex-col">
+            <div className="absolute -right-16  mt-3 w-96 bg-white border border-gray-200 shadow-lg rounded-lg z-50 flex flex-col">
               
              
-              <div className="p-4 border-b">
+              <div className="p-4 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
                 <p className="text-sm text-gray-500">
                   You have {unreadCount} new {unreadCount === 1 ? "notification" : "notifications"}.
