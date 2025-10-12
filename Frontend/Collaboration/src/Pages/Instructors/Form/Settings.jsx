@@ -33,6 +33,8 @@ const Settings = ({allowLateSubmission,visibility,groupsDetail,studentsPerGroup,
 
   
   const [student, setstudent] = useState([])
+  console.log("studentFetch", student );
+  
   const fetchStudent = async()=>{
     try {
       const result  =await AxiosInstance.get(API_PATH.ASSIGN.GETSTUDENTS);
