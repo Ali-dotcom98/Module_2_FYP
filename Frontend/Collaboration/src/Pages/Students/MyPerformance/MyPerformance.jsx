@@ -5,9 +5,16 @@ import { data } from 'react-router-dom';
 import AssinmentCard from '../../../Components/Cards/AssinmentCard';
 import moment from 'moment';
 import Result from '../../../Components/Cards/Result';
+import { formatYearMonth } from '../../../Utility/Helper';
+import Modal from '../../../Layouts/Modal';
+import { LuDownload } from 'react-icons/lu';
+import { LucideDownload } from 'lucide-react';
 const MyPerformance = () => {
     const [Data, setData] = useState([])
     const [display, setdisplay] = useState("")
+      const [openPreviewModal, setOpenPreviewModal] = useState(false);
+  const [Assingmentdata, setAssingmentdata] = useState({})
+   const [AssingmentDetail, setAssingmentDetail] = useState({})
 
     const handleFetchSubmision = async()=>{
         try {
@@ -44,18 +51,38 @@ const MyPerformance = () => {
                     ID={Assingment?._id}
                     imgurl={Assingment?.thumbnail || null}
                     title={Assingment?.title || "Untitled Resume"}
+                    dueDate={formatYearMonth(Assingment?.dueDate)}
                     lastUpdated={
                     Assingment?.updatedAt
                         ? moment(Assingment.updatedAt).format("Do MMM YYYY")
                         : "Unknown"
                     }
-                    onselect={(ID)=>ConfirmID(ID)}
+                    onselect={(ID)=>{ConfirmID(Assingment._id), setAssingmentDetail(Assingment)}}
                 />
                 ))}
         </div>
         <div onClick={()=>setdisplay("")}   className={`min-h-screen border rounded-md bg-slate-50 px-5 py-5 absolute w-1/2 top-0 right-0 transform transition-transform duration-500 ease-in-out ${display ? "translate-x-0":"-right-32 translate-x-full"}`}>
-                <Result AssingmentID = {display}/>
+        <Result AssingmentDetail={AssingmentDetail} setdisplay={setdisplay} AssingmentID={display} setAssingmentdata={setAssingmentdata} openPreviewModal={openPreviewModal} setOpenPreviewModal={setOpenPreviewModal} />
         </div>
+         {/* <Modal
+              isOpen={openPreviewModal}
+              onClose={() => setOpenPreviewModal(false)}
+              title={AssingmentDetail.title}
+              showActionBtn
+              actionBtnText="Download"
+              actionBtnIcon={<LucideDownload className="text-[16px]" />}
+              type={"Print"}
+              
+              >
+              <div className="w-[98vw] h-[90vh]" >
+                  <RenderFrom
+                      AssingmentDetail ={AssingmentDetail}
+                      data = {Assingmentdata}
+                      containerWidth = {baseWidth}
+                      status={"Medium"}
+                  />
+          </div>
+        </Modal> */}
    </div>
   )
 }
