@@ -103,6 +103,23 @@ route.put("/Update/:id", Protect, async (req, res) => {
     }
 });
 
+
+route.get("/InstructorDetail/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(id);
+
+        const result = await User_Model.findById(id);
+        if (!result) {
+            return res.status(404).json({ message: "Instructor not found" });
+        }
+        res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 route.get("/Assingments", Protect, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
