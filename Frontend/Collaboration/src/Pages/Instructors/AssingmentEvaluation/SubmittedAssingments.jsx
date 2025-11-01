@@ -7,14 +7,14 @@ import moment from 'moment';
 const SubmittedAssingments = () => {
   const Navigate = useNavigate();
     const [Data, setData] = useState([])
-    const handleFetchSubmision = async()=>{
+    const handleFetchSubmision = async(pageNum = 1 , limit =9)=>{
         try {
-            const response = await AxiosInstance.get(API_PATH.PARTIAL.GET_SUBMIT);
-            console.log(response.data);
+            const response = await AxiosInstance.get(`${API_PATH.PARTIAL.GET_SUBMIT}?page=${pageNum}&limit=${limit}`);
+            console.log(response.data.result);
             
             if(response.data)
             {
-                setData(response.data || [])
+                setData(response.data.result || [])
             }
         } catch (error) {
             console.log(error);
