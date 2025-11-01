@@ -21,8 +21,9 @@ const Result = ({
     try {
       const response = await AxiosInstance.get(API_PATH.ASSIGN.RESULT(AssingmentID));
       if (response.data) {
-        setAssingmentdata(response.data);
         setData(response.data);
+        setAssingmentdata(response.data);
+        
       }
     } catch (error) {
       console.error(error);
@@ -31,6 +32,8 @@ const Result = ({
   const FetchInstructor = async () => {
     try {
       const response = await AxiosInstance.get(API_PATH.ASSIGN.INSTRUCTOR(AssingmentDetail?.Instructor));
+      console.log(response.data);
+      
       if (response.data) {
         setInstructor(response.data)
       }
@@ -44,7 +47,7 @@ const Result = ({
 
   useEffect(() => {
     FetchResultData();
-    if(AssingmentDetail)
+    if(AssingmentDetail!=null)
     {
       FetchInstructor();
     }
@@ -61,10 +64,10 @@ const Result = ({
   return (
     <>
       {/* Assignment Info Card */}
-      <div className="font-urbanist flex items-center justify-end pb-3"><X className="cursor-pointer" onClick={()=>setdisplay("")}/></div>
-      <div className="max-w-xl mx-auto bg-white border  rounded-2xl shadow-md p-6 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-2xl font-bold text-gray-800">{AssingmentDetail?.title}</h2>
+      <div className="flex items-center justify-end pb-3"><X className="cursor-pointer" onClick={()=>setdisplay("")}/></div>
+      <div className="font-urbanist max-w-xl mx-auto bg-white border  rounded-2xl shadow-md p-6 mb-6 ">
+        <div className="flex items-center justify-between mb-3"> 
+          <h2 className="text-2xl font-bold text-gray-800">{AssingmentDetail?.title} okl</h2>
           <span
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               AssingmentDetail?.difficulty?.toLowerCase() === "hard"

@@ -7,7 +7,7 @@ const Animation = () => {
     <>
         <Lottie 
         animationData={animationData}
-        style={{ height: 580, width: 580 }} 
+        style={{ height: 530, width: 530 }} 
       />
     </>
   );

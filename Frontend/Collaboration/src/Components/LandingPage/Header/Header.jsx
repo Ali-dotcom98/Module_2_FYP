@@ -28,13 +28,13 @@ const Header = () => {
   ]
 
   return (
-    <header className="font-urbanist w-full border-b">
+    <header className="font-urbanist w-full border-b ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex text-[21px] items-center space-x-2 text-gray-900">
-            <span className="font-semibold tracking-wide flex gap-2 text-xl items-center">
-              <div className='  w-fit rounded-lg  border-b-4 border-[#6c63ff] flex items-center text-[#6c63ff] font-extrabold border py-2 px-2 '><LuUsers className='size-6'/></div>
-              <div className='font-extrabold tracking-wider'>CollabAssign</div>
+          <div className="flex text-[16px] items-center space-x-2 text-gray-900">
+            <span className="font-semibold tracking-wide flex gap-1 text-xl items-center ">
+              <div className='  w-fit rounded-lg  border-[#6c63ff] flex items-center text-[#6c63ff] font-extrabold border p-1'><LuUsers className='size-4'/></div>
+              <div className='font-bold tracking-wider text-lg'>CollabAssign</div>
             </span>
           </div>
 
