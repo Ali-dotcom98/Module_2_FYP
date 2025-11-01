@@ -98,13 +98,25 @@ route.get("/Info", Protect, async (req, res) => {
 
 route.get("/SubmitAssingments", async (req, res) => {
     try {
-        const result = await AssingmentModel.find({ dueDate: { $lte: Date.now() } }).sort({ dueDate: 1 })
+        const page = JSON.parse(req.query.page)
+        const limit = JSON.parse(req.query.limit)
+        console.log(limit);
+
+        const skip = (page - 1) * limit;
+        const total = await AssingmentModel.find({ dueDate: { $lte: Date.now() } }).sort({ dueDate: 1 }).countDocuments();
+        const result = await AssingmentModel.find({ dueDate: { $lte: Date.now() } }).skip(skip).limit(limit).sort({ dueDate: 1 })
         if (!result || result.length === 0) {
             return res.status(404).json({ message: "No submission found" });
         }
 
 
-        res.status(200).json(result);
+        res.status(200).json({
+            page,
+            limit,
+            totalItems: total,
+            totalPages: Math.ceil(total / limit),
+            result
+        });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
