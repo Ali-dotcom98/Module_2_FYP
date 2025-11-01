@@ -174,16 +174,19 @@ const User_Model = require("./Models/User_Model.js");
 const PartialSubmission = require("./Router/PartialSubmission_Route.js");
 const Assingment_Model = require("./Models/Assingment_Model.js");
 const PartialSubmission_Model = require("./Models/PartialSubmission_Model.js");
+const AskAi = require("./Router/AI_Routes.js")
 const path = require("path")
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }))
 app.use(express.json())
+
 app.use("/Auth", AuthRoutes)
 app.use("/Assign", AssingmentRoutes)
 app.use("/Partial", PartialSubmission)
 app.use("/Notifications", NotificationRoutes)
+app.use("/Ask", AskAi)
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'),
     {
