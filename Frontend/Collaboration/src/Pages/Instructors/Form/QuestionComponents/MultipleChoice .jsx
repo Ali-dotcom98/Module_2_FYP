@@ -4,6 +4,7 @@ import { UserContext } from "../../../../ContextApi/UserContext";
 import Model from "../../../../Layouts/Modal";
 
 const MultipleChoice = ({
+  mode,
   item,
   removeQuestion,
   index,
@@ -32,17 +33,17 @@ const MultipleChoice = ({
     updateArrayItemInstructor(index, "rating", value);
     updateArrayItemInstructor(index, "obtainedMarks", marks);
   };
+  console.log(User.status);
+  
   return (
     <>
-      <div className="border border-dashed px-3 py-1 mt-3 rounded-md -translate-y-5">
+      <div className="border border-dashed border-purple-300 px-3 py-1 mt-3 rounded-md ">
         <div className="col-span-2 mt-3">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded mt-1">
               Question {index + 1}
             </label>
             <div className="flex items-center gap-4 font-urbanist font-semibold">
-              {/* Lock status */}
               {User.status === "Student" && (
                 <div>
                   {item?.isLocked ? (
@@ -57,7 +58,6 @@ const MultipleChoice = ({
                 </div>
               )}
 
-              {/* Marks */}
               <div className="flex gap-2 items-center">
                 <label className="text-xs font-medium text-slate-600">Marks</label>
                 <input
@@ -73,7 +73,6 @@ const MultipleChoice = ({
             </div>
           </div>
 
-          {/* Question Text */}
           <textarea
             placeholder="Write your MCQ question here..."
             className="form-input resize-none mt-2 w-full"
@@ -83,11 +82,10 @@ const MultipleChoice = ({
               User.status === "Instructor"
                 ? ({ target }) =>
                     UpdateItemInArray(index, "questionText", target.value)
-                : undefined // ✅ Use undefined, not an empty string
+                : undefined 
             }
           />
 
-          {/* Options */}
           {User.status === "Instructor" ? (
             <div className="mt-3 space-y-2">
               {item?.options?.map((opt, idx) => (
@@ -96,24 +94,26 @@ const MultipleChoice = ({
                     type="radio"
                     name={`mcq_${item.id}`}
                     className="accent-purple-600"
-                    checked={Number(item.answer)=== idx}
-                    // onChange={() => UpdateItemInArray(index, "answer", idx)}
+                    checked={mode ? Number(item.StudentAnswer)=== idx : Number(item.answer)=== idx}
+                    onChange={() => UpdateItemInArray(index, "answer", idx)}
                   />
                   <input
                     type="text"
-                    className={`border px-2 py-1 rounded-md w-full ${
-                      Number(item.answer)=== idx ? "bg-purple-100" : ""
+                    className={`border border-gray-200 px-2 py-1 rounded-md w-full 
+                      
+                    ${
+                      mode ? Number(item.StudentAnswer)=== idx ? "bg-purple-100" : "" : Number(item.answer)=== idx ? "bg-purple-100" : ""
                     }`}
                     value={opt}
                     placeholder={`Option ${idx + 1}`}
-                    // onChange={({ target }) =>
-                    //   UpdateItemInNestedArray(index, idx, "options", target.value)
-                    // }
+                    onChange={({ target }) =>
+                      UpdateItemInNestedArray(index, idx, "options", target.value)
+                    }
                   />
                 </div>
               ))}
 
-              {/* Add/Remove */}
+
               <div className="flex items-center justify-between">
                 {
                   !type && (
@@ -138,36 +138,66 @@ const MultipleChoice = ({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col space-y-3 my-3">
-              {item?.options?.map((opt, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`mcq_${item.id}`}
-                    checked={Number(item.answer) == idx}
-                    onChange={() =>
-                      updateArrayItem(index, "answer", String(idx))
-                    }
-                    disabled={
-                      User.status === "Instructor" ||
-                      WhoIsAnswering?._id &&
-                      WhoIsAnswering._id !== User._id &&
-                      DisableQuestionbyIndex === index
-                    }
-                  />
-                  <input
-                    type="text"
-                    className={`border px-2 py-1 rounded-md w-full focus:outline-none ${
-                      Number(item.answer) === idx ? "bg-purple-100" : ""
-                    }`}
-                    onClick={() => updateArrayItem(index, "answer", String(idx))}
-                    value={opt}
-                    placeholder={`Option ${idx + 1}`}
-                    
-                  />
-                </div>
-              ))}
-            </div>
+           <div className="flex flex-col space-y-3 my-3">
+  {item?.options?.map((opt, idx) => {
+  // compute which index is selected
+  const selectedIndex =
+    User.status === "Student"
+      ? item.StudentAnswer !== undefined && item.StudentAnswer !== ''
+        ? Number(item.StudentAnswer)
+        : null
+      : item.answer !== undefined && item.answer !== ''
+        ? Number(item.answer)
+        : null;
+
+  return (
+    <div key={idx} className="flex items-center gap-2">
+      <input
+        type="radio"
+        name={`mcq_${item._id}`}
+        checked={selectedIndex === idx}
+        onChange={() =>
+          updateArrayItem(
+            index,
+            User.status === "Student" ? "StudentAnswer" : "answer",
+            String(idx)
+          )
+        }
+        disabled={
+          User.status === "Instructor" ||
+          (WhoIsAnswering?._id &&
+            WhoIsAnswering._id !== User._id &&
+            DisableQuestionbyIndex === index)
+        }
+      />
+
+      <input
+        type="text"
+        className={`border border-gray-200 px-2 py-1 rounded-md w-full focus:outline-none ${
+          selectedIndex === idx ? "bg-purple-100" : ""
+        }`}
+        readOnly={User.status === "Student"}
+        value={opt}
+        placeholder={`Option ${idx + 1}`}
+        // onClick={() =>
+        //   User.status === "Student"
+        //     ? updateArrayItem(index, "StudentAnswer", String(idx))
+        //     : updateArrayItem(index, "answer", String(idx))
+        // }
+        onChange={e => {
+          if (User.status !== "Student") {
+            const newOptions = [...item.options];
+            newOptions[idx] = e.target.value;
+            updateArrayItem(index, "options", newOptions);
+          }
+        }}
+      />
+    </div>
+  );
+})}
+
+</div>
+
           )}
         </div>
 
@@ -192,11 +222,11 @@ const MultipleChoice = ({
 
             <div className="flex items-center justify-end text-sm w-full gap-3">
               {User.status === "Student" && (
-                <button
-                  onClick={() => setConfirmSave(true)}
-                  className={`btn-small-light w-fit flex items-center gap-1 ${
-                    item.isLocked ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+               <button
+                    disabled={item.isLocked || WhoIsAnswering && WhoIsAnswering != User._id  && DisableQuestionbyIndex == index}
+                    onClick={() => setConfirmSave(true)}
+                    className={`btn-small-light w-fit flex items-center gap-1 z-50
+                    ${item.isLocked ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <Save className="size-4" /> Save
                 </button>
@@ -228,34 +258,34 @@ const MultipleChoice = ({
         )}
       </div>
       <Model
-            isOpen={ConfirmSave}
-            onClose={() => setConfirmSave(false)}
-            title ={"Confirm Save"}
-            type={"Banner"}
-            >
-            <div className="p-4 font-urbanist h-full">
-                <h2 className="text-lg font-semibold mb-2">Save Assingment Progress</h2>
-                <p className="text-sm text-gray-700 mb-4">
-                Are you sure you want to save this answer?  
-                Once saved, it cannot be rewritten unless others vote to unlock it.
-                </p>
+          isOpen={ConfirmSave}
+          onClose={() => setConfirmSave(false)}
+          title ={"Confirm Save"}
+          type={"small"}
+          >
+          <div className="p-4 font-urbanist h-full">
+              <h2 className="text-lg font-semibold mb-2">Save Assingment Progress</h2>
+              <p className="text-sm text-gray-700 mb-4 space-y-2">
+              Are you sure you want to save this answer?<br/>
+              Once saved, it cannot be rewritten unless others vote to unlock it.
+              </p>
 
-                <div className="flex justify-end space-x-3 border">
-                <button
-                    className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
-                    onClick={() => setConfirmSave(false)}
-                >
-                    Cancel
-                </button>
-                <button
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                   onClick={() => (setConfirmSave(false), HandleSave())}
-                >
-                    Save Answer
-                </button>
-                </div>
-            </div>
-        </Model>
+              <div className="flex justify-end space-x-3 translate-y-0  sm:translate-y-3">
+              <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  onClick={() => setConfirmSave(false)}
+              >
+                  Cancel
+              </button>
+              <button
+                  className=" px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={() => (setConfirmSave(false), HandleSave())}
+              >
+                  Save Answer
+              </button>
+              </div>
+          </div>
+      </Model>
     </>
   );
 };
