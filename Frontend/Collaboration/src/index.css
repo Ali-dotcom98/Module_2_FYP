@@ -93,3 +93,35 @@
   max-height: 1000px;
   /* large enough to show content */
 }
+
+
+/* ================= PRINT MODE ================= */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .print-area {
+    width: 210mm !important;
+    height: auto !important;
+    min-height: 297mm !important;
+
+    padding: 10mm;
+    box-sizing: border-box;
+    background: white;
+
+    transform: none !important;
+  }
+
+  /* Hide modal chrome */
+  button,
+  .btn-small-light {
+    display: none !important;
+  }
+}
