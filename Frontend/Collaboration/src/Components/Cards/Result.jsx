@@ -64,10 +64,12 @@ const Result = ({
   return (
     <>
       {/* Assignment Info Card */}
-      <div className="flex items-center justify-end pb-3"><X className="cursor-pointer" onClick={()=>setdisplay("")}/></div>
+      <div className="flex items-center justify-end pb-3 "><X className="cursor-pointer" onClick={()=>setdisplay("")}/></div>
       <div className="font-urbanist max-w-xl mx-auto bg-white border  rounded-2xl shadow-md p-6 mb-6 ">
         <div className="flex items-center justify-between mb-3"> 
-          <h2 className="text-2xl font-bold text-gray-800">{AssingmentDetail?.title} okl</h2>
+          <h2 className="text-2xl font-bold text-gray-800 truncate pr-3">
+            {AssingmentDetail?.title}
+          </h2>
           <span
             className={`px-3 py-1 text-xs font-medium rounded-full ${
               AssingmentDetail?.difficulty?.toLowerCase() === "hard"
@@ -81,7 +83,7 @@ const Result = ({
           </span>
         </div>
         <p className="text-sm text-gray-500 mb-3">{AssingmentDetail?.description}</p>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm font-semibold">
           <div>
             <p className="text-gray-500">Instructor</p>
             <p className="font-medium text-gray-800">{Instructor?.name}</p>
@@ -94,7 +96,7 @@ const Result = ({
           </div>
           <div className="flex gap-2">
             <p className="text-gray-500">Total Marks</p>
-            <p className="font-medium text-gray-800">{AssingmentDetail?.totalMarks}</p>
+            <p className=" text-gray-800 font-semibold">{AssingmentDetail?.totalMarks}</p>
           </div>
         </div>
       </div>
