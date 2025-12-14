@@ -10,6 +10,9 @@ import Modal from '../../../Layouts/Modal';
 import { LuDownload } from 'react-icons/lu';
 import { LucideDownload } from 'lucide-react';
 import DefaultResult from "./DefaultResultFormat"
+import { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+
 const MyPerformance = () => {
     const [Data, setData] = useState([])
     const [display, setdisplay] = useState("")
@@ -19,6 +22,8 @@ const MyPerformance = () => {
     const [Assingmentdata, setAssingmentdata] = useState({})
     const [AssingmentDetail, setAssingmentDetail] = useState({})
     const [baseWidth, setBaseWidth] = useState(600);
+    const printRef = useRef(null);
+
 
     const handleFetchSubmision = async(pageNum = page, limit = 10)=>{
         try {
@@ -47,6 +52,11 @@ const MyPerformance = () => {
          window.scrollTo({ top: 0, behavior: "smooth" });
     }, [page])
     
+      const handleDownload = useReactToPrint({
+      contentRef: printRef,
+      documentTitle: `${AssingmentDetail.title}-Result`,
+    });
+
 
   return (
     <div>
@@ -100,10 +110,10 @@ const MyPerformance = () => {
           Next
         </button>
       </div>
-        <div onClick={()=>setdisplay("")}   className={`min-h-screen border rounded-md bg-slate-50 px-5 py-5 absolute w-1/2 top-0 right-0 transform transition-transform duration-500 ease-in-out ${display ? "translate-x-0":"-right-32 translate-x-full"}`}>
-        <Result AssingmentDetail={AssingmentDetail} setdisplay={setdisplay} AssingmentID={display} setAssingmentdata={setAssingmentdata} openPreviewModal={openPreviewModal} setOpenPreviewModal={setOpenPreviewModal} />
+        <div onClick={()=>setdisplay("")}   className={`min-h-screen border rounded-md bg-slate-100 px-5 py-5 absolute w-1/2 top-16 right-0 transform transition-transform duration-500 ease-in-out ${display ? "translate-x-0":"-right-32 translate-x-full"}`}>
+          <Result AssingmentDetail={AssingmentDetail} setdisplay={setdisplay} AssingmentID={display} setAssingmentdata={setAssingmentdata} openPreviewModal={openPreviewModal} setOpenPreviewModal={setOpenPreviewModal} />
         </div>
-         <Modal
+        <Modal
               isOpen={openPreviewModal}
               onClose={() => setOpenPreviewModal(false)}
               title={AssingmentDetail.title}
@@ -111,16 +121,18 @@ const MyPerformance = () => {
               actionBtnText="Download"
               actionBtnIcon={<LucideDownload className="text-[16px]" />}
               type={"Print"}
+              onActionClick={handleDownload}
               
               >
-              <div className="w-[98vw] h-[90vh]" >
-                  <DefaultResult
-                      AssingmentDetail ={AssingmentDetail}
-                      data = {Assingmentdata}
-                      containerWidth = {baseWidth}
-                      status={"Medium"}
-                  />
-          </div>
+              <div ref={printRef} className="print-area w-[98vw] h-[90vh]">
+  <DefaultResult
+    AssingmentDetail={AssingmentDetail}
+    data={Assingmentdata}
+    containerWidth={baseWidth}
+    status="Medium"
+  />
+</div>
+
         </Modal>
    </div>
   )
