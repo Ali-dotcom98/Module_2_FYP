@@ -38,17 +38,20 @@ const displayedTests = showAllTests
         setScale(containerWidth / actualBaseWidth);
         }
     }, [containerWidth]);
+
+    console.log("status",status);
+    
   return (
     <div
         ref={resumeRef}
-        className={`bg-white ${status ?"px-3 ":"p-3"}`}
-        style={{
-        transform: containerWidth > 0 ? `scale(${scale})` : "none",
-        transformOrigin: "top left",
-        width: containerWidth > 0 ? `${baseWidth}px` : "auto", 
-        height: "auto",
-        }}>
-        <div className="flex flex-col bg-white ">
+        className={`bg-white  border-gray-200 ${status ?"px-3 ":"p-3"}`}
+            style={{
+            transform: containerWidth > 0 ? `scale(${scale})` : "none",
+            transformOrigin: "top left",
+            width: containerWidth > 0 ? `${baseWidth}px` : "auto", 
+            height: "auto",
+            }}>
+        <div className="flex flex-col bg-white  ">
             {
                  <ChallengeHeader
                         data ={AssingmentDetail || ""}
