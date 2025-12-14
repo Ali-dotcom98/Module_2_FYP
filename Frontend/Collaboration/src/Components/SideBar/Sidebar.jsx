@@ -33,7 +33,7 @@ const handleConfirmation = ()=>{
 }
 
 return (
-    <div className='z-50 min-h-screen fixed border w-[20%] font-urbanist border-gray-200/50'>
+    <div className='z-50 min-h-screen fixed border w-[20%] font-urbanist border-gray-200/50 bg-white'>
 
         <div className='flex flex-col items-center justify-center mb-7 space-y-3 pt-10'>
             {!User.profileImage ? (
