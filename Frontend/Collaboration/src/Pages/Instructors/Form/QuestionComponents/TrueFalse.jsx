@@ -4,6 +4,7 @@ import { UserContext } from "../../../../ContextApi/UserContext";
 import Model from "../../../../Layouts/Modal";
 
 const TrueFalse = ({
+  mode,
   item,
   removeQuestion,
   index,
@@ -17,9 +18,10 @@ const TrueFalse = ({
   HandleSave,
 }) => {
   const { User } = useContext(UserContext);
+  console.log(User.status);
+  
   const [ConfirmSave, setConfirmSave] = useState(false);
 
-  // ✅ Evaluate marks based on rating
   const handleRatingChange = (value) => {
     let marks = 0;
     if (value === "Excellent") marks = item.marks;
@@ -41,14 +43,12 @@ const TrueFalse = ({
   };
 
   return (
-    <div className="border border-dashed px-3 py-1 mt-3 rounded-md">
-      {/* Header */}
+    <div className="border border-dashed border-purple-300 px-3 py-1 mt-3 rounded-md">
       <div className="flex items-center justify-between mt-3">
         <label className="w-fit text-[12px] font-medium text-white bg-[#6c63ff] px-3 py-0.5 rounded">
           Question {index + 1}
         </label>
         <div className="flex items-center gap-4 font-semibold">
-          {/* Lock Status */}
           {User.status === "Student" &&
             (item?.isLocked ? (
               <div className="text-sm flex items-center gap-1 rounded-xl px-3 py-0.5 bg-red-100 text-red-900">
@@ -61,7 +61,6 @@ const TrueFalse = ({
                 <p>Open for editing</p>
               </div>
             ))}
-          {/* Marks */}
           <label className="text-xs text-slate-600">Marks</label>
           <input
             type="number"
@@ -74,7 +73,6 @@ const TrueFalse = ({
         </div>
       </div>
 
-      {/* Question Text */}
       <textarea
         placeholder="Write your True/False question here..."
         className="form-input resize-none mt-2 w-full"
@@ -91,23 +89,40 @@ const TrueFalse = ({
             <input
               type="radio"
               className="accent-purple-600"
-              name={`true_false_${item.id || index}`}
-              checked={item.answer === value}
+              name={`true_false_${item._id || index}`}
+              checked={
+                User.status === "Student"
+                  ? item.StudentAnswer === value
+                  : mode ? item.StudentAnswer === value : item.answer === value
+              }
               disabled={
                 (User.status === "Student" && item.isLocked) ||
                 (WhoIsAnswering &&
                   WhoIsAnswering?._id !== User._id &&
                   DisableQuestionbyIndex === index)
               }
-              onChange={() => handleChange(value)}
+              onChange={() =>
+                User.status === "Instructor"
+                  ? UpdateItemInArray(index, "answer", value)
+                  : updateArrayItem(index, "StudentAnswer", value)
+              }
             />
-            <span
-              className={`font-semibold ${
-                item.answer === value ? "text-purple-600" : "text-slate-600"
-              }`}
+
+           <span
+              className={`font-semibold
+                ${
+                  (User.status === 'Student' || User.status === 'Instructor' ? item.StudentAnswer : mode ? item.StudentAnswer === value : item.answer === value) === value
+                    ? 'text-purple-600'
+                    : 'text-slate-600'
+                }
+              
+              `}
             >
               {value}
-            </span>
+          </span>
+
+
+
           </label>
         ))}
 
@@ -186,39 +201,35 @@ const TrueFalse = ({
         </div>
       )}
 
-      {/* Save Confirmation Modal */}
       <Model
-        isOpen={ConfirmSave}
-        onClose={() => setConfirmSave(false)}
-        title="Confirm Save"
-        type="Banner"
-      >
-        <div className="p-4 font-urbanist">
-          <h2 className="text-lg font-semibold mb-2">Save Assignment Progress</h2>
-          <p className="text-sm text-gray-700 mb-4">
-            Are you sure you want to save this answer? Once saved, it cannot be
-            rewritten unless others vote to unlock it.
-          </p>
-
-          <div className="flex justify-end space-x-3 border-t pt-3">
-            <button
-              className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
-              onClick={() => setConfirmSave(false)}
-            >
-              Cancel
-            </button>
-            <button
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-              onClick={() => {
-                setConfirmSave(false);
-                HandleSave();
-              }}
-            >
-              Save Answer
-            </button>
-          </div>
-        </div>
-      </Model>
+                  isOpen={ConfirmSave}
+                  onClose={() => setConfirmSave(false)}
+                  title ={"Confirm Save"}
+                  type={"small"}
+                  >
+                  <div className="p-4 font-urbanist h-full">
+                      <h2 className="text-lg font-semibold mb-2">Save Assingment Progress</h2>
+                      <p className="text-sm text-gray-700 mb-4 space-y-2">
+                      Are you sure you want to save this answer?<br/>
+                      Once saved, it cannot be rewritten unless others vote to unlock it.
+                      </p>
+      
+                      <div className="flex justify-end space-x-3 translate-y-0  sm:translate-y-3">
+                      <button
+                          className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                          onClick={() => setConfirmSave(false)}
+                      >
+                          Cancel
+                      </button>
+                      <button
+                          className=" px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                         onClick={() => (setConfirmSave(false), HandleSave())}
+                      >
+                          Save Answer
+                      </button>
+                      </div>
+                  </div>
+              </Model>
     </div>
   );
 };
