@@ -141,9 +141,19 @@ const RenderForm = () => {
 
         default:
         return null;
-  }
-};
+    }
+    };
 
+    useEffect(() => {
+        const RemoveMessage = setTimeout(() => {
+            seterrorMsg("")
+        }, 3000);
+    
+        return () => {
+            clearTimeout(RemoveMessage);
+        };
+    }, [errorMsg])
+    
     const gotoHome = ()=>{
         navigator("/Instructor/CreateAssingment")
     }
