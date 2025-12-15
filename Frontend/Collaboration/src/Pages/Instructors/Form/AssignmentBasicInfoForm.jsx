@@ -30,7 +30,7 @@ const AssignmentBasicInfoForm = ({title , description ,dueDate ,difficulty, tota
                 </div>
 
                 <div className="col-span-2 mt-3 ">
-                    <label className="text-xs font-medium text-slate-600">
+                    <label className=" font-medium ">
                     Description
                     </label>
                     <textarea
